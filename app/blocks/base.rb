@@ -2,58 +2,65 @@ module Blocks
   class Base
     include SuperCallbacks
 
-    attr_accessor :world, :x, :y, :z, :images, :uuid
+    attr_accessor :world, :x, :y, :z, :textures, :uuid
 
     SIZE = 32
 
-    IMAGE_TOP_XXXX = 0
-    IMAGE_TOP_0000 = 1
-    IMAGE_TOP_0XXX = 2
-    IMAGE_TOP_X0XX = 3
-    IMAGE_TOP_XX0X = 4
-    IMAGE_TOP_XXX0 = 5
-    IMAGE_BOT_XX = 6
-    IMAGE_BOT_00 = 7
-    IMAGE_BOT_0X = 8
-    IMAGE_BOT_X0 = 9
+    TEXTURE_TOP_XXXX = 0
+    TEXTURE_TOP_0000 = 1
+    TEXTURE_TOP_0XXX = 2
+    TEXTURE_TOP_X0XX = 3
+    TEXTURE_TOP_XX0X = 4
+    TEXTURE_TOP_XXX0 = 5
+    TEXTURE_BOT_XX = 6
+    TEXTURE_BOT_00 = 7
+    TEXTURE_BOT_0X = 8
+    TEXTURE_BOT_X0 = 9
 
     def initialize(world:, x:, y:, z:)
       @world = world
       @x = x
       @y = y
       @z = z
-      @images = []
+      @textures = []
 
       @uuid = SecureRandom.uuid
 
-      @images[IMAGE_TOP_XXXX] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_xxxx.png'))
-      @images[IMAGE_TOP_0000] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_0000.png'))
-      @images[IMAGE_TOP_0XXX] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_0xxx.png'))
-      @images[IMAGE_TOP_X0XX] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_x0xx.png'))
-      @images[IMAGE_TOP_XX0X] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_xx0x.png'))
-      @images[IMAGE_TOP_XXX0] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('top_xxx0.png'))
-      @images[IMAGE_BOT_XX] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('bot_xx.png'))
-      @images[IMAGE_BOT_00] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('bot_00.png'))
-      @images[IMAGE_BOT_0X] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('bot_0x.png'))
-      @images[IMAGE_BOT_X0] = Images::Base.new(width: SIZE, height: SIZE / 2, file_path: resolved_block_full_file_path('bot_x0.png'))
+      @textures[TEXTURE_TOP_XXXX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_xxxx.png'))
+      @textures[TEXTURE_TOP_0000] = Textures::Base.new(file_path: resolved_block_full_file_path('top_0000.png'))
+      @textures[TEXTURE_TOP_0XXX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_0xxx.png'))
+      @textures[TEXTURE_TOP_X0XX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_x0xx.png'))
+      @textures[TEXTURE_TOP_XX0X] = Textures::Base.new(file_path: resolved_block_full_file_path('top_xx0x.png'))
+      @textures[TEXTURE_TOP_XXX0] = Textures::Base.new(file_path: resolved_block_full_file_path('top_xxx0.png'))
+      @textures[TEXTURE_BOT_XX] = Textures::Base.new(file_path: resolved_block_full_file_path('bot_xx.png'))
+      @textures[TEXTURE_BOT_00] = Textures::Base.new(file_path: resolved_block_full_file_path('bot_00.png'))
+      @textures[TEXTURE_BOT_0X] = Textures::Base.new(file_path: resolved_block_full_file_path('bot_0x.png'))
+      @textures[TEXTURE_BOT_X0] = Textures::Base.new(file_path: resolved_block_full_file_path('bot_x0.png'))
 
       add_to_world_chunks
     end
 
-    def draw
-      (top_image.x, top_image.y) = ::Helpers::Maths.to_2_5d(x, y, z)
-      (bot_image.x, bot_image.y) = ::Helpers::Maths.to_2_5d(x, y, z + (SIZE / 2))
-
-      top_image.draw
-      bot_image.draw
+    def render
+      Rubuild::Texture.new_from_render(
+        width: SIZE,
+        height: SIZE
+      ) do
+        top_texture.draw(x: 0, y: 0, width: SIZE, height: SIZE / 2)
+        bot_texture.draw(x: 0, y: SIZE / 2, width: SIZE, height: SIZE / 2)
+      end
     end
 
-    def top_image
-      @images[IMAGE_TOP_XXXX]
+    def draw(x: self.x, y: self.y, z: self.z)
+      (x_2_5d, y_2_5d) = ::Helpers::Maths.to_2_5d(x, y, z)
+      render.draw(x: x_2_5d, y: y_2_5d)
     end
 
-    def bot_image
-      @images[IMAGE_BOT_XX]
+    def top_texture
+      @textures[TEXTURE_TOP_XXXX]
+    end
+
+    def bot_texture
+      @textures[TEXTURE_BOT_XX]
     end
 
     def block_z
@@ -109,7 +116,7 @@ module Blocks
     def resolved_block_full_file_path(file_path)
       return file_path if File.exist?(file_path)
 
-      full_app_directory_shared_path = File.join(RUBUILD_PATH, 'app', 'images', 'shared', file_path)
+      full_app_directory_shared_path = File.join(RUBUILD_PATH, 'app', 'textures', 'shared', file_path)
       return full_app_directory_shared_path if File.exist? full_app_directory_shared_path
 
       app_directory_path = self.class.name.split('::').map(&:underscore)

@@ -11,37 +11,37 @@ module Rubuild
       @texture = evaluate_texture(file_path: file_path, texture: texture)
     end
 
-    def draw
-      # $app.sdl_renderer.copy(
-      #   texture.sdl_texture,
-      #   nil,
-      #   SDL2::Rect[x, y, width, height]
-      # )
-      $app.sdl_renderer.copy_ex(
-        texture.sdl_texture,
-        nil, # source rect
-        SDL2::Rect[x, y, width, height], # destination rect
-        rotation,
-        nil, # rotation anchor point: default is center of 3rd arg
-        SDL2::Renderer::FLIP_NONE
-      )
-    end
+    # def draw
+    #   # $app.sdl_renderer.copy(
+    #   #   texture.sdl_texture,
+    #   #   nil,
+    #   #   SDL2::Rect[x, y, width, height]
+    #   # )
+    #   $app.sdl_renderer.copy_ex(
+    #     texture.sdl_texture,
+    #     nil, # source rect
+    #     SDL2::Rect[x, y, width, height], # destination rect
+    #     rotation,
+    #     nil, # rotation anchor point: default is center of 3rd arg
+    #     SDL2::Renderer::FLIP_NONE
+    #   )
+    # end
 
-    def draw
-      # $app.sdl_renderer.copy(
-      #   texture.sdl_texture,
-      #   nil,
-      #   SDL2::Rect[x, y, width, height]
-      # )
-      $app.sdl_renderer.copy_ex(
-        texture.sdl_texture,
-        nil, # source rect
-        SDL2::Rect[x, y, width, height], # destination rect
-        rotation,
-        nil, # rotation anchor point: default is center of 3rd arg
-        SDL2::Renderer::FLIP_NONE
-      )
-    end
+    # def draw
+    #   # $app.sdl_renderer.copy(
+    #   #   texture.sdl_texture,
+    #   #   nil,
+    #   #   SDL2::Rect[x, y, width, height]
+    #   # )
+    #   $app.sdl_renderer.copy_ex(
+    #     texture.sdl_texture,
+    #     nil, # source rect
+    #     SDL2::Rect[x, y, width, height], # destination rect
+    #     rotation,
+    #     nil, # rotation anchor point: default is center of 3rd arg
+    #     SDL2::Renderer::FLIP_NONE
+    #   )
+    # end
 
     private
 

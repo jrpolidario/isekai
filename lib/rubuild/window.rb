@@ -20,7 +20,8 @@ module Rubuild
     end
 
     def set_sdl_renderer
-      @sdl_renderer = sdl_window.create_renderer(-1, 0)
+      @sdl_renderer = sdl_window.create_renderer(-1, SDL2::Renderer::Flags::ACCELERATED)
+      # @sdl_renderer.blend_mode = SDL2::BlendMode::BLEND
     end
   end
 

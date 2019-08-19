@@ -9,8 +9,8 @@ $app.state.fps = Texts::Default.new(x: 0, y: 0, color: :green)
 
 $app.state.dirts = []
 
-(0...1).to_a.reverse.each do |z|
-  (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.reverse.each do |y|
+(0...1).to_a.each do |z|
+  (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.each do |y|
     (0...($app.window.width / Blocks::Base::SIZE)).to_a.each do |x|
       $app.state.dirts << Blocks::Dirt01.new(
         world: $app.state.world,
@@ -22,9 +22,22 @@ $app.state.dirts = []
   end
 end
 
+# (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.reverse.each do |z|
+#   (0...1).to_a.each do |y|
+#     (0...1).to_a.each do |x|
+#       $app.state.dirts << Blocks::Dirt01.new(
+#         world: $app.state.world,
+#         x: x * Blocks::Base::SIZE,
+#         y: y * Blocks::Base::SIZE,
+#         z: z * Blocks::Base::SIZE
+#       )
+#     end
+#   end
+# end
+
 # (0...1).to_a.reverse.each do |z|
-#   (0...3).to_a.reverse.each do |y|
-#     (0...3).to_a.each do |x|
+#   (0...6).to_a.reverse.each do |y|
+#     (0...6).to_a.each do |x|
 #       $app.state.dirts << Blocks::Dirt01.new(
 #         world: $app.state.world,
 #         x: x * Blocks::Base::SIZE,
@@ -62,7 +75,7 @@ end
 #   end
 # end
 
-$app.state.world.draw
+# $app.state.world.draw
 
 # $app.state.world.chunks_cached_draw_images[0][0][1].x = 0
 # $app.state.world.chunks_cached_draw_images[0][0][1].y = 0
@@ -70,10 +83,28 @@ $app.state.world.draw
 $app.tick do
   $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
 
-  # $app.state.dirts.map(&:draw)
-  # $app.state.world.draw
+  $app.state.dirt ||= Blocks::Dirt01.new(
+    world: $app.state.world,
+    x: 5 * Blocks::Base::SIZE,
+    y: 5 * Blocks::Base::SIZE,
+    z: -1 * Blocks::Base::SIZE
+  )
+  #
+  # $app.state.dirt.draw
 
-  $app.state.world.chunks_cached_draw_images[0][1][1].draw
+  # $app.state.dirts.map(&:draw)
+
+  $app.state.world.draw
+
+  # binding.pry
+
+  # $app.state.world.chunks_cached_draw_textures[0][0][0].draw
+
+  # $app.state.world.chunks[0][0][0].blocks[0][0][0].each do |uuid, object|
+  #   object.draw
+  # end
+
+  # $app.state.world.chunks[0][0][0].blocks[0][0][0].first.second.draw
 
 
 

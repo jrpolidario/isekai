@@ -35,38 +35,64 @@ module Worlds
     end
 
     def render
-      (chunk_2_5d_x, chunk_2_5d_y) = Helpers::Maths.to_2_5d(
-        chunk_pixel_x,
-        chunk_pixel_y,
-        chunk_pixel_z
-      )
+      # (chunk_2_5d_x, chunk_2_5d_y) = Helpers::Maths.to_2_5d(
+      #   chunk_pixel_x,
+      #   chunk_pixel_y,
+      #   chunk_pixel_z
+      # )
 
-      draw_image_texture = Rubuild::Texture.new_from_render(
-          width: 500,
-        height: 500
+      Rubuild::Texture.new_from_render(
+        width: chunk_pixels_size,
+        height: chunk_pixels_size
       ) do
         blocks.sort.reverse.each do |block_z, h|
-          h.sort.reverse.each do |block_y, h|
-            h.sort.reverse.each do |block_x, h|
+          h.sort.each do |block_y, h|
+            h.sort.each do |block_x, h|
               h.each do |uuid, object|
-                object.draw
+                object.draw(
+                  x: (block_x * Blocks::Base::SIZE) - chunk_pixel_x,
+                  y: (block_y * Blocks::Base::SIZE) - chunk_pixel_y,
+                  z: (block_z * Blocks::Base::SIZE) - chunk_pixel_z
+                )
               end
             end
           end
         end
       end
 
-      Images::Base.new(
-        x: chunk_2_5d_x,
-        y: chunk_2_5d_y,
-        width: draw_image_texture.width,
-        height: draw_image_texture.height,
-        texture: draw_image_texture
-      )
+      # Textures::Base.new(
+      #   # x: chunk_2_5d_x,
+      #   # y: chunk_2_5d_y,
+      #   width: draw_image_texture.width,
+      #   height: draw_image_texture.height,
+      #   texture: draw_image_texture
+      # )
     end
 
-    def draw
-      render.draw
+    def draw(x: chunk_pixel_x, y: chunk_pixel_y, z: chunk_pixel_z)
+      (x_2_5d, y_2_5d) = ::Helpers::Maths.to_2_5d(x, y, z)
+      render.draw(x: x_2_5d, y: y_2_5d)
     end
+
+    # def draw
+    #   Rubuild::Texture.new_from_render(
+    #     width: chunk_pixels_size,
+    #     height: chunk_pixels_size
+    #   ) do
+    #     blocks.sort.reverse.each do |block_z, h|
+    #       h.sort.reverse.each do |block_y, h|
+    #         h.sort.reverse.each do |block_x, h|
+    #           h.each do |uuid, object|
+    #             object.draw(
+    #               x: (block_x * Blocks::Base::SIZE) - chunk_pixel_x,
+    #               y: (block_y * Blocks::Base::SIZE) - chunk_pixel_y,
+    #               z: (block_z * Blocks::Base::SIZE) - chunk_pixel_z
+    #             )
+    #           end
+    #         end
+    #       end
+    #     end
+    #   end
+    # end
   end
 end

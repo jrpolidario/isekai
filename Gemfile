@@ -9,6 +9,11 @@ gem 'ostruct'
 
 gem 'dotenv', require: 'dotenv/load'
 
+gem 'activesupport', require: 'active_support/all'
+
+gem 'super_callbacks', '~> 1.3'
+
 group :development do
   gem 'pry'
+  gem 'pry-nav'
 end

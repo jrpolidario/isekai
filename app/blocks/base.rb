@@ -3,6 +3,8 @@ module Blocks
     include SuperCallbacks
 
     attr_accessor :world, :x, :y, :z, :textures, :uuid
+    singleton_class.attr_accessor :sampled_resolved_block_full_file_path_cache
+    @sampled_resolved_block_full_file_path_cache = {}
 
     SIZE = 32
 
@@ -26,7 +28,7 @@ module Blocks
 
       @uuid = SecureRandom.uuid
 
-      @textures[TEXTURE_TOP_XXXX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_xxxx.png'))
+      @textures[TEXTURE_TOP_XXXX] = Textures::Base.new(file_path: sampled_resolved_block_full_file_path('top_xxxx'))
       @textures[TEXTURE_TOP_0000] = Textures::Base.new(file_path: resolved_block_full_file_path('top_0000.png'))
       @textures[TEXTURE_TOP_0XXX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_0xxx.png'))
       @textures[TEXTURE_TOP_X0XX] = Textures::Base.new(file_path: resolved_block_full_file_path('top_x0xx.png'))
@@ -56,11 +58,91 @@ module Blocks
     end
 
     def top_texture
-      @textures[TEXTURE_TOP_XXXX]
+      block_above = world.find_or_initialize_block(block_z: block_z - 1, block_y: block_y, block_x: block_x)
+      block_left = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x - 1)
+      block_behind = world.find_or_initialize_block(block_z: block_z, block_y: block_y - 1, block_x: block_x)
+      block_right = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x + 1)
+      block_front = world.find_or_initialize_block(block_z: block_z, block_y: block_y + 1, block_x: block_x)
+
+      # draw 4 corners of "top" block
+
+      # start with everything assumed to be without any contact with any block
+      texture_for_0xxx = TEXTURE_TOP_0XXX # lower left
+      texture_for_x0xx = TEXTURE_TOP_X0XX # top left
+      texture_for_xx0x = TEXTURE_TOP_XX0X # top right
+      texture_for_xxx0 = TEXTURE_TOP_XXX0 # lower right
+
+      if !block_above.empty?
+        texture_for_0xxx = TEXTURE_TOP_XXXX
+        texture_for_x0xx = TEXTURE_TOP_XXXX
+        texture_for_xx0x = TEXTURE_TOP_XXXX
+        texture_for_xxx0 = TEXTURE_TOP_XXXX
+      else
+        if !block_front.empty? || !block_left.empty?
+          texture_for_0xxx = TEXTURE_TOP_XXXX
+        end
+
+        if !block_left.empty? || !block_behind.empty?
+          texture_for_x0xx = TEXTURE_TOP_XXXX
+        end
+
+        if !block_behind.empty? || !block_right.empty?
+          texture_for_xx0x = TEXTURE_TOP_XXXX
+        end
+
+        if !block_right.empty? || !block_front.empty?
+          texture_for_xxx0 = TEXTURE_TOP_XXXX
+        end
+      end
+
+      Rubuild::Texture.new_from_render(
+        width: SIZE,
+        height: SIZE / 2
+      ) do
+        @textures[texture_for_0xxx].draw(x: 0, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+      end
     end
 
     def bot_texture
-      @textures[TEXTURE_BOT_XX]
+      block_below = world.find_or_initialize_block(block_z: block_z + 1, block_y: block_y, block_x: block_x)
+      block_left = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x - 1)
+      block_behind = world.find_or_initialize_block(block_z: block_z, block_y: block_y - 1, block_x: block_x)
+      block_right = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x + 1)
+      block_front = world.find_or_initialize_block(block_z: block_z, block_y: block_y + 1, block_x: block_x)
+
+      # draw 4 corners of "bot" block
+
+      # start with everything assumed to be without any contact with any block
+      texture_for_0xxx = TEXTURE_BOT_0X # lower left
+      texture_for_x0xx = TEXTURE_BOT_XX # top left # constant
+      texture_for_xx0x = TEXTURE_BOT_XX # top right # constant
+      texture_for_xxx0 = TEXTURE_BOT_X0 # lower right
+
+      if !block_below.empty?
+        texture_for_0xxx = TEXTURE_BOT_XX
+        texture_for_xxx0 = TEXTURE_BOT_XX
+      else
+        if !block_front.empty? || !block_left.empty?
+          texture_for_0xxx = TEXTURE_BOT_XX
+        end
+
+        if !block_right.empty? || !block_front.empty?
+          texture_for_xxx0 = TEXTURE_BOT_XX
+        end
+      end
+
+      Rubuild::Texture.new_from_render(
+        width: SIZE,
+        height: SIZE / 2
+      ) do
+        @textures[texture_for_0xxx].draw(x: 0, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
+        @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+      end
     end
 
     def block_z
@@ -124,6 +206,14 @@ module Blocks
       return full_app_directory_path if File.exist? full_app_directory_path
 
       raise ArgumentError, "file does not exist: #{full_app_directory_path}"
+    end
+
+    def sampled_resolved_block_full_file_path(dir_path)
+      Blocks::Base.sampled_resolved_block_full_file_path_cache[dir_path] ||= (
+        resolved_dir_path = resolved_block_full_file_path(dir_path)
+        Dir[File.join(resolved_dir_path, '*')]
+      )
+      Blocks::Base.sampled_resolved_block_full_file_path_cache[dir_path].sample
     end
   end
 end

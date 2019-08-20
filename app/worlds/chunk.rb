@@ -17,6 +17,12 @@ module Worlds
       @blocks[block_z][block_y][block_x] ||= {}
     end
 
+    # # callback!
+    # def move_to_block(block_z:, block_y:, block_x:, object:)
+    #   block = find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x)
+    #   block[object.uuid] = object
+    # end
+
     def chunk_pixel_x
       chunk_x * SIZE * Blocks::Base::SIZE
     end

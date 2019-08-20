@@ -14,6 +14,14 @@ module Worlds
       @chunks[chunk_z][chunk_y][chunk_x] ||= Chunk.new(chunk_x: chunk_x, chunk_y: chunk_y, chunk_z: chunk_z)
     end
 
+    def find_or_initialize_block(block_z:, block_y:, block_x:)
+      chunk_z = block_z / Chunk::SIZE
+      chunk_y = block_y / Chunk::SIZE
+      chunk_x = block_x / Chunk::SIZE
+      chunk = find_or_initialize_chunk(chunk_z: chunk_z, chunk_y: chunk_y, chunk_x: chunk_x)
+      chunk.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x)
+    end
+
     def draw
       chunks.sort.reverse.each do |chunk_z, h|
         h.sort.each do |chunk_y, h|
@@ -23,6 +31,10 @@ module Worlds
 
             if !@chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x]
               @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] = chunk.render
+
+              # chunk.on_change do
+              #   @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] =
+              # end
             end
 
             (x_chunk_2_5d, y_chunk_2_5d) = Helpers::Maths.to_2_5d(
@@ -35,10 +47,6 @@ module Worlds
               x: x_chunk_2_5d,
               y: y_chunk_2_5d
             )
-            
-            # $app.sdl_renderer.present
-            # $app.sdl_renderer.clear
-            # binding.pry
           end
         end
       end

@@ -22,6 +22,48 @@ $app.state.dirts = []
   end
 end
 
+$app.state.dirts << Blocks::Dirt01.new(
+  world: $app.state.world,
+  x: 5 * Blocks::Base::SIZE,
+  y: 5 * Blocks::Base::SIZE,
+  z: -1 * Blocks::Base::SIZE
+)
+
+$app.state.dirts << Blocks::Dirt01.new(
+  world: $app.state.world,
+  x: 6 * Blocks::Base::SIZE,
+  y: 5 * Blocks::Base::SIZE,
+  z: -1 * Blocks::Base::SIZE
+)
+
+$app.state.dirts << Blocks::Dirt01.new(
+  world: $app.state.world,
+  x: 6 * Blocks::Base::SIZE,
+  y: 6 * Blocks::Base::SIZE,
+  z: -1 * Blocks::Base::SIZE
+)
+
+$app.state.dirts << Blocks::Dirt01.new(
+  world: $app.state.world,
+  x: 10 * Blocks::Base::SIZE,
+  y: 10 * Blocks::Base::SIZE,
+  z: -1 * Blocks::Base::SIZE
+)
+
+$app.state.dirts << Blocks::Dirt01.new(
+  world: $app.state.world,
+  x: 10 * Blocks::Base::SIZE,
+  y: 10 * Blocks::Base::SIZE,
+  z: -2 * Blocks::Base::SIZE
+)
+
+# $app.state.player << Blocks::Player.new(
+#   world: $app.state.world,
+#   x: 10 * Blocks::Base::SIZE,
+#   y: 10 * Blocks::Base::SIZE,
+#   z: -1 * Blocks::Base::SIZE
+# )
+
 # (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.reverse.each do |z|
 #   (0...1).to_a.each do |y|
 #     (0...1).to_a.each do |x|
@@ -83,12 +125,6 @@ end
 $app.tick do
   $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
 
-  $app.state.dirt ||= Blocks::Dirt01.new(
-    world: $app.state.world,
-    x: 5 * Blocks::Base::SIZE,
-    y: 5 * Blocks::Base::SIZE,
-    z: -1 * Blocks::Base::SIZE
-  )
   #
   # $app.state.dirt.draw
 

@@ -1,6 +1,6 @@
 module Worlds
   class Chunk
-    SIZE = 4
+    SIZE = 8
 
     attr_accessor :chunk_x, :chunk_y, :chunk_z, :blocks
 
@@ -47,7 +47,7 @@ module Worlds
       #   chunk_pixel_z
       # )
 
-      Rubuild::Texture.new_from_render(
+      texture = Rubuild::Texture.new_from_render(
         width: chunk_pixels_size,
         height: chunk_pixels_size
       ) do

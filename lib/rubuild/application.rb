@@ -5,7 +5,7 @@ module Rubuild
     attr_accessor :name, :state, :inputs, :outputs, :window, :sdl_renderer, :temp, :internal
     delegate :sdl_renderer, to: :window
 
-    FPS_RESET_INTERVAL = 1
+    FPS_RESET_INTERVAL = 0.2 # seconds
 
     include EnvironmentHelpers
 
@@ -13,8 +13,9 @@ module Rubuild
       def config
         {
           window: {
-            width: 1280,
-            height: 720
+            width: :full,
+            height: :full,
+            max_fps: 60
           }
         }
       end
@@ -50,6 +51,7 @@ module Rubuild
           Thread.new do
             binding.pry
           end
+          sleep(0.1)
         end
 
         $app
@@ -57,7 +59,7 @@ module Rubuild
     end
 
     def tick
-      internal.start_time = Time.now
+      internal.frame_start_time = Time.now.to_f
       internal.frames = 0
       internal.fps_reset_interval_frames = internal.frames
       internal.fps_reset_interval_start_time = internal.start_time
@@ -76,11 +78,12 @@ module Rubuild
     private
 
     def loop_inits
-      set_fps
+      fps_start_handler
       internal.current_inputs = Set.new
     end
 
     def loop_cleanups
+      fps_end_handler
     end
 
     def render_all
@@ -99,23 +102,33 @@ module Rubuild
       end
     end
 
-    def set_fps
-      internal.frames += 1
+    def fps_start_handler
+      internal.frame_start_time = Time.now
 
-      if internal.fps.nil? || Time.now.to_f >= internal.fps_reset_interval_start_time.to_f + FPS_RESET_INTERVAL
-        if !internal.is_fps_reset_interval
-          internal.fps_reset_interval_frames = internal.frames
-          internal.fps_reset_interval_start_time = Time.now
-        end
-
-        internal.is_fps_reset_interval = true
-      else
-        internal.is_fps_reset_interval = false
+      if internal.fps.nil? || internal.frame_start_time.to_f >= internal.fps_reset_interval_start_time.to_f + FPS_RESET_INTERVAL
+        internal.fps_reset_interval_frames = internal.frames
+        internal.fps_reset_interval_start_time = internal.frame_start_time
       end
+
+      # internal.frames += 1
+      #
+      # internal.fps = (
+      #   (internal.frames - internal.fps_reset_interval_frames) /
+      #   (Time.now - internal.fps_reset_interval_start_time)
+      # ).to_i
+    end
+
+    def fps_end_handler
+      # TODO: limit fps: not working properly, it seems
+      # @milliseconds_per_frame ||= 1000 * 1 * 0.75 / $app.window.max_fps.to_f
+      # elapsed_since_frame_start_time = Time.now - internal.frame_start_time
+      # sleep((@milliseconds_per_frame - elapsed_since_frame_start_time) / 1000)
+
+      internal.frames += 1
 
       internal.fps = (
         (internal.frames - internal.fps_reset_interval_frames) /
-        (Time.now - internal.fps_reset_interval_start_time).to_f
+        (Time.now - internal.fps_reset_interval_start_time)
       ).to_i
     end
   end

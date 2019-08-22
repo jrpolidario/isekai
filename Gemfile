@@ -13,6 +13,10 @@ gem 'activesupport', require: 'active_support/all'
 
 gem 'super_callbacks', '~> 1.3'
 
+gem 'concurrent-ruby', require: 'concurrent'
+
+gem 'thwait'
+
 group :development do
   gem 'pry'
   gem 'pry-nav'

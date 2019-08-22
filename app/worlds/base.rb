@@ -29,24 +29,26 @@ module Worlds
             @chunks_cached_draw_textures[chunk_z] ||= {}
             @chunks_cached_draw_textures[chunk_z][chunk_y] ||= {}
 
-            if !@chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x]
-              @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] = chunk.render
+            # $app.internal.pool.post do
+              if !@chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x]
+                @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] = chunk.render
 
-              # chunk.on_change do
-              #   @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] =
-              # end
-            end
+                # chunk.on_change do
+                #   @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x] =
+                # end
+              end
 
-            (x_chunk_2_5d, y_chunk_2_5d) = Helpers::Maths.to_2_5d(
-              chunk.chunk_pixel_x,
-              chunk.chunk_pixel_y,
-              chunk.chunk_pixel_z
-            )
+              (x_chunk_2_5d, y_chunk_2_5d) = Helpers::Maths.to_2_5d(
+                chunk.chunk_pixel_x,
+                chunk.chunk_pixel_y,
+                chunk.chunk_pixel_z
+              )
 
-            @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x].draw(
-              x: x_chunk_2_5d,
-              y: y_chunk_2_5d
-            )
+              @chunks_cached_draw_textures[chunk_z][chunk_y][chunk_x].draw(
+                x: x_chunk_2_5d,
+                y: y_chunk_2_5d
+              )
+            # end
           end
         end
       end

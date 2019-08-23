@@ -7,7 +7,7 @@ module Rubuild
       width:,
       height:,
       max_fps:,
-      sdl_window_flags: SDL2::Window::Flags::SHOWN | SDL2::Window::Flags::OPENGL | SDL2::Window::Flags::FULLSCREEN_DESKTOP
+      sdl_window_flags: SDL2::Window::Flags::SHOWN | SDL2::Window::Flags::OPENGL # | SDL2::Window::Flags::FULLSCREEN_DESKTOP
     )
       @title = title
       current_display_mode = SDL2::Display.displays[0].current_mode

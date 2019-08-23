@@ -17,6 +17,8 @@ module Blocks
     TEXTURE_BOT_0X = 8
     TEXTURE_BOT_X0 = 9
 
+    BORDER_COLOR = [32, 32, 32, 96]
+
     def initialize(world:, x:, y:, z:)
       @world = world
       @x = x
@@ -71,14 +73,12 @@ module Blocks
           height: SIZE
         ) do
           top_texture.draw(x: 0, y: 0, width: SIZE, height: SIZE / 2)
-          $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
-          $app.sdl_renderer.draw_color = [32, 32, 32, 32]
-          $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, 0, SIZE, SIZE / 2))
+          # $app.sdl_renderer.draw_color = [32, 32, 32, 32]
+          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, 0, SIZE, SIZE / 2))
 
           bot_texture.draw(x: 0, y: SIZE / 2, width: SIZE, height: SIZE / 2)
-          $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
-          $app.sdl_renderer.draw_color = [32, 32, 32, 32]
-          $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, SIZE / 2, SIZE, SIZE / 2))
+          # $app.sdl_renderer.draw_color = [32, 32, 32, 32]
+          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, SIZE / 2, SIZE, SIZE / 2))
         end
       end
 
@@ -109,35 +109,48 @@ module Blocks
       texture_for_xx0x = TEXTURE_TOP_XX0X # top right
       texture_for_xxx0 = TEXTURE_TOP_XXX0 # lower right
 
+      should_draw_lines = Array.new(8, true)
+
       if !block_above.empty?
         texture_for_0xxx = TEXTURE_TOP_XXXX
         texture_for_x0xx = TEXTURE_TOP_XXXX
         texture_for_xx0x = TEXTURE_TOP_XXXX
         texture_for_xxx0 = TEXTURE_TOP_XXXX
+        should_draw_lines = [false, false, false, false, false, false, false, false]
       else
-        if !block_front.empty? || !block_left.empty?
+        if !block_left.empty?
+          should_draw_lines[0] = false
+          should_draw_lines[1] = false
           texture_for_0xxx = TEXTURE_TOP_XXXX
-        end
-
-        if !block_left.empty? || !block_behind.empty?
           texture_for_x0xx = TEXTURE_TOP_XXXX
         end
 
-        if !block_behind.empty? || !block_right.empty?
+        if !block_behind.empty?
+          should_draw_lines[2] = false
+          should_draw_lines[3] = false
+          texture_for_x0xx = TEXTURE_TOP_XXXX
           texture_for_xx0x = TEXTURE_TOP_XXXX
         end
 
-        if !block_right.empty? || !block_front.empty?
+        if !block_right.empty?
+          should_draw_lines[4] = false
+          should_draw_lines[5] = false
+          texture_for_xx0x = TEXTURE_TOP_XXXX
+          texture_for_xxx0 = TEXTURE_TOP_XXXX
+        end
+
+        if !block_front.empty?
+          should_draw_lines[6] = false
+          should_draw_lines[7] = false
+          texture_for_0xxx = TEXTURE_TOP_XXXX
           texture_for_xxx0 = TEXTURE_TOP_XXXX
         end
       end
 
       Blocks::Base.memoized!(
         :top_texture,
-        @textures[texture_for_0xxx],
-        @textures[texture_for_x0xx],
-        @textures[texture_for_xx0x],
-        @textures[texture_for_xxx0]
+        *@textures.values_at(texture_for_0xxx, texture_for_x0xx, texture_for_xx0x, texture_for_xxx0),
+        *should_draw_lines
       ) do
         Rubuild::Texture.new_from_render(
           width: SIZE,
@@ -147,6 +160,21 @@ module Blocks
           @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
           @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
           @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+
+          $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
+          $app.sdl_renderer.draw_color = BORDER_COLOR
+
+          $app.sdl_renderer.draw_line(       0,       SIZE / 4,            0,     (SIZE / 2) - 1) if should_draw_lines[0]
+          $app.sdl_renderer.draw_line(       0,              0,            0,           SIZE / 4) if should_draw_lines[1]
+
+          $app.sdl_renderer.draw_line(       0,              0,     SIZE / 2,                  0) if should_draw_lines[2]
+          $app.sdl_renderer.draw_line(SIZE / 2,              0,     SIZE - 1,                  0) if should_draw_lines[3]
+
+          $app.sdl_renderer.draw_line(SIZE - 1,              0,     SIZE - 1,     (SIZE / 4)    ) if should_draw_lines[4]
+          $app.sdl_renderer.draw_line(SIZE - 1,       SIZE / 4,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[5]
+
+          $app.sdl_renderer.draw_line(SIZE / 2, (SIZE / 2) - 1,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[6]
+          $app.sdl_renderer.draw_line(       0, (SIZE / 2) - 1,     SIZE / 2,     (SIZE / 2) - 1) if should_draw_lines[7]
         end
       end
     end
@@ -166,25 +194,41 @@ module Blocks
       texture_for_xx0x = TEXTURE_BOT_XX # top right # constant
       texture_for_xxx0 = TEXTURE_BOT_X0 # lower right
 
+      should_draw_lines = Array.new(8, true)
+
+      should_draw_lines[2] = false # always should have no border
+      should_draw_lines[3] = false # always should have no border
+
       if !block_below.empty?
         texture_for_0xxx = TEXTURE_BOT_XX
         texture_for_xxx0 = TEXTURE_BOT_XX
-      else
-        if !block_front.empty? || !block_left.empty?
-          texture_for_0xxx = TEXTURE_BOT_XX
-        end
+        should_draw_lines[6] = false
+        should_draw_lines[7] = false
+      end
 
-        if !block_right.empty? || !block_front.empty?
-          texture_for_xxx0 = TEXTURE_BOT_XX
-        end
+      if !block_left.empty?
+        should_draw_lines[0] = false
+        should_draw_lines[1] = false
+        texture_for_0xxx = TEXTURE_BOT_XX
+      end
+
+      if !block_right.empty?
+        should_draw_lines[4] = false
+        should_draw_lines[5] = false
+        texture_for_xxx0 = TEXTURE_BOT_XX
+      end
+
+      if !block_front.empty?
+        should_draw_lines[6] = false
+        should_draw_lines[7] = false
+        texture_for_0xxx = TEXTURE_BOT_XX
+        texture_for_xxx0 = TEXTURE_BOT_XX
       end
 
       Blocks::Base.memoized!(
         :bot_texture,
-        @textures[texture_for_0xxx],
-        @textures[texture_for_x0xx],
-        @textures[texture_for_xx0x],
-        @textures[texture_for_xxx0]
+        *@textures.values_at(texture_for_0xxx, texture_for_x0xx, texture_for_xx0x, texture_for_xxx0),
+        *should_draw_lines,
       ) do
         Rubuild::Texture.new_from_render(
           width: SIZE,
@@ -194,6 +238,21 @@ module Blocks
           @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
           @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
           @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+
+          $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
+          $app.sdl_renderer.draw_color = BORDER_COLOR
+
+          $app.sdl_renderer.draw_line(       0,       SIZE / 4,            0,     (SIZE / 2) - 1) if should_draw_lines[0]
+          $app.sdl_renderer.draw_line(       0,              0,            0,           SIZE / 4) if should_draw_lines[1]
+
+          $app.sdl_renderer.draw_line(       0,              0,     SIZE / 2,                  0) if should_draw_lines[2]
+          $app.sdl_renderer.draw_line(SIZE / 2,              0,     SIZE - 1,                  0) if should_draw_lines[3]
+
+          $app.sdl_renderer.draw_line(SIZE - 1,              0,     SIZE - 1,     (SIZE / 4)    ) if should_draw_lines[4]
+          $app.sdl_renderer.draw_line(SIZE - 1,       SIZE / 4,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[5]
+
+          $app.sdl_renderer.draw_line(SIZE / 2, (SIZE / 2) - 1,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[6]
+          $app.sdl_renderer.draw_line(       0, (SIZE / 2) - 1,     SIZE / 2,     (SIZE / 2) - 1) if should_draw_lines[7]
         end
       end
     end

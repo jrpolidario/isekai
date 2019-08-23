@@ -25,7 +25,7 @@ Benchmark.bm do |bm|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Blocks::Base::SIZE)).to_a.each do |x|
-            # if rand(3) >= 2
+            if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -37,7 +37,7 @@ Benchmark.bm do |bm|
                   z: z * Blocks::Base::SIZE
                 )
               end
-            # end
+            end
           # end
         end
       end
@@ -76,6 +76,20 @@ Benchmark.bm do |bm|
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
       x: 10 * Blocks::Base::SIZE,
+      y: 10 * Blocks::Base::SIZE,
+      z: -2 * Blocks::Base::SIZE
+    )
+
+    $app.state.dirts << Blocks::Dirt01.new(
+      world: $app.state.world,
+      x: 11 * Blocks::Base::SIZE,
+      y: 10 * Blocks::Base::SIZE,
+      z: -1 * Blocks::Base::SIZE
+    )
+
+    $app.state.dirts << Blocks::Dirt01.new(
+      world: $app.state.world,
+      x: 11 * Blocks::Base::SIZE,
       y: 10 * Blocks::Base::SIZE,
       z: -2 * Blocks::Base::SIZE
     )

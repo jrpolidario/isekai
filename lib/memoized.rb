@@ -16,4 +16,12 @@ Object.class_eval do
     memoized[identifier] = instance_exec(&block) unless memoized.has_key? identifier
     memoized[identifier]
   end
+
+  def unmemoized!(*identifier)
+    memoized = (
+      instance_variable_get(:@memoized) ||
+        instance_variable_set(:@memoized, {})
+    )
+    memoized.delete(identifier)
+  end
 end

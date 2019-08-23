@@ -17,14 +17,14 @@ Benchmark.bm do |bm|
   $app.internal.bm = bm
 
   bm.report 'Initializing Blocks...' do
-    mid_block_x = ($app.window.width / Blocks::Base::SIZE) / 2
-    mid_block_y = ($app.window.height * 2 / Blocks::Base::SIZE) / 2
+    mid_block_x = ($app.window.width / Worlds::GridBlock::SIZE) / 2
+    mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
     (0...4).to_a.each do |z|
-      (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.each do |y|
+      (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
-          (0...($app.window.width / Blocks::Base::SIZE)).to_a.each do |x|
+          (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
             if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
@@ -32,9 +32,9 @@ Benchmark.bm do |bm|
               )
                 $app.state.dirts << Blocks::Dirt01.new(
                   world: $app.state.world,
-                  x: x * Blocks::Base::SIZE,
-                  y: y * Blocks::Base::SIZE,
-                  z: z * Blocks::Base::SIZE
+                  x: x * Worlds::GridBlock::SIZE,
+                  y: y * Worlds::GridBlock::SIZE,
+                  z: z * Worlds::GridBlock::SIZE
                 )
               end
             end
@@ -47,51 +47,51 @@ Benchmark.bm do |bm|
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 5 * Blocks::Base::SIZE,
-      y: 5 * Blocks::Base::SIZE,
-      z: -1 * Blocks::Base::SIZE
+      x: 5 * Worlds::GridBlock::SIZE,
+      y: 5 * Worlds::GridBlock::SIZE,
+      z: -1 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 6 * Blocks::Base::SIZE,
-      y: 5 * Blocks::Base::SIZE,
-      z: -1 * Blocks::Base::SIZE
+      x: 6 * Worlds::GridBlock::SIZE,
+      y: 5 * Worlds::GridBlock::SIZE,
+      z: -1 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 6 * Blocks::Base::SIZE,
-      y: 6 * Blocks::Base::SIZE,
-      z: -1 * Blocks::Base::SIZE
+      x: 6 * Worlds::GridBlock::SIZE,
+      y: 6 * Worlds::GridBlock::SIZE,
+      z: -1 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 10 * Blocks::Base::SIZE,
-      y: 10 * Blocks::Base::SIZE,
-      z: -1 * Blocks::Base::SIZE
+      x: 10 * Worlds::GridBlock::SIZE,
+      y: 10 * Worlds::GridBlock::SIZE,
+      z: -1 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 10 * Blocks::Base::SIZE,
-      y: 10 * Blocks::Base::SIZE,
-      z: -2 * Blocks::Base::SIZE
+      x: 10 * Worlds::GridBlock::SIZE,
+      y: 10 * Worlds::GridBlock::SIZE,
+      z: -2 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 11 * Blocks::Base::SIZE,
-      y: 10 * Blocks::Base::SIZE,
-      z: -1 * Blocks::Base::SIZE
+      x: 11 * Worlds::GridBlock::SIZE,
+      y: 10 * Worlds::GridBlock::SIZE,
+      z: -1 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirts << Blocks::Dirt01.new(
       world: $app.state.world,
-      x: 11 * Blocks::Base::SIZE,
-      y: 10 * Blocks::Base::SIZE,
-      z: -2 * Blocks::Base::SIZE
+      x: 11 * Worlds::GridBlock::SIZE,
+      y: 10 * Worlds::GridBlock::SIZE,
+      z: -2 * Worlds::GridBlock::SIZE
     )
 
     # ThreadsWait.all_waits(*$app.internal.threads)
@@ -99,19 +99,19 @@ Benchmark.bm do |bm|
 
   # $app.state.player << Blocks::Player.new(
   #   world: $app.state.world,
-  #   x: 10 * Blocks::Base::SIZE,
-  #   y: 10 * Blocks::Base::SIZE,
-  #   z: -1 * Blocks::Base::SIZE
+  #   x: 10 * Worlds::GridBlock::SIZE,
+  #   y: 10 * Worlds::GridBlock::SIZE,
+  #   z: -1 * Worlds::GridBlock::SIZE
   # )
 
-  # (0...($app.window.height * 2 / Blocks::Base::SIZE)).to_a.reverse.each do |z|
+  # (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.reverse.each do |z|
   #   (0...1).to_a.each do |y|
   #     (0...1).to_a.each do |x|
   #       $app.state.dirts << Blocks::Dirt01.new(
   #         world: $app.state.world,
-  #         x: x * Blocks::Base::SIZE,
-  #         y: y * Blocks::Base::SIZE,
-  #         z: z * Blocks::Base::SIZE
+  #         x: x * Worlds::GridBlock::SIZE,
+  #         y: y * Worlds::GridBlock::SIZE,
+  #         z: z * Worlds::GridBlock::SIZE
   #       )
   #     end
   #   end
@@ -122,9 +122,9 @@ Benchmark.bm do |bm|
   #     (0...6).to_a.each do |x|
   #       $app.state.dirts << Blocks::Dirt01.new(
   #         world: $app.state.world,
-  #         x: x * Blocks::Base::SIZE,
-  #         y: y * Blocks::Base::SIZE,
-  #         z: z * Blocks::Base::SIZE
+  #         x: x * Worlds::GridBlock::SIZE,
+  #         y: y * Worlds::GridBlock::SIZE,
+  #         z: z * Worlds::GridBlock::SIZE
   #       )
   #     end
   #   end

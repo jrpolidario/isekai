@@ -4,8 +4,6 @@ module Blocks
 
     attr_accessor :world, :x, :y, :z, :textures, :uuid
 
-    SIZE = 32
-
     TEXTURE_TOP_XXXX = 0
     TEXTURE_TOP_0000 = 1
     TEXTURE_TOP_0XXX = 2
@@ -18,6 +16,36 @@ module Blocks
     TEXTURE_BOT_X0 = 9
 
     BORDER_COLOR = [32, 32, 32, 96]
+
+    delegate(
+      :grid_block_above, :grid_block_below,
+      :grid_block_left, :grid_block_right,
+      :grid_block_front, :grid_block_behind,
+      :grid_blocks_surrounding, :grid_blocks_surrounding_objects,
+      to: :grid_block
+    )
+
+    %i[x= y= z=].each do |m|
+      before m do
+        grid_blocks_surrounding_objects.each do |uuid, object|
+          world.unmemoized!(:draw, object.grid_chunk)
+        end
+
+        grid_block.remove_from_objects(self)
+      end
+
+      after m do
+        grid_block.add_to_objects(self)
+
+        grid_blocks_surrounding_objects.each do |uuid, object|
+          world.unmemoized!(:draw, object.grid_chunk)
+        end
+      end
+    end
+
+    def size
+      Worlds::GridBlock::SIZE
+    end
 
     def initialize(world:, x:, y:, z:)
       @world = world
@@ -59,7 +87,7 @@ module Blocks
         Textures::Base.new(file_path: path)
       end
 
-      add_to_world_chunks
+      grid_block.add_to_objects(self)
     end
 
     def render
@@ -69,21 +97,21 @@ module Blocks
         bot_texture
       ) do
         Rubuild::Texture.new_from_render(
-          width: SIZE,
-          height: SIZE
+          width: size,
+          height: size
         ) do
-          top_texture.draw(x: 0, y: 0, width: SIZE, height: SIZE / 2)
+          top_texture.draw(x: 0, y: 0, width: size, height: size / 2)
           # $app.sdl_renderer.draw_color = [32, 32, 32, 32]
-          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, 0, SIZE, SIZE / 2))
+          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, 0, size, size / 2))
 
-          bot_texture.draw(x: 0, y: SIZE / 2, width: SIZE, height: SIZE / 2)
+          bot_texture.draw(x: 0, y: size / 2, width: size, height: size / 2)
           # $app.sdl_renderer.draw_color = [32, 32, 32, 32]
-          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, SIZE / 2, SIZE, SIZE / 2))
+          # $app.sdl_renderer.draw_rect(SDL2::Rect.new(0, size / 2, size, size / 2))
         end
       end
 
       # TODO
-      # if ([0, 1, 3, 4].include? block_z)
+      # if ([0, 1, 3, 4].include? grid_block_z)
       #   texture.sdl_texture.alpha_mod = 128
       #   texture.sdl_texture.color_mod = [128, 128, 128]
       # end
@@ -95,12 +123,6 @@ module Blocks
     end
 
     def top_texture
-      block_above = world.find_or_initialize_block(block_z: block_z - 1, block_y: block_y, block_x: block_x)
-      block_left = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x - 1)
-      block_behind = world.find_or_initialize_block(block_z: block_z, block_y: block_y - 1, block_x: block_x)
-      block_right = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x + 1)
-      block_front = world.find_or_initialize_block(block_z: block_z, block_y: block_y + 1, block_x: block_x)
-
       # draw 4 corners of "top" block
 
       # start with everything assumed to be without any contact with any block
@@ -111,35 +133,35 @@ module Blocks
 
       should_draw_lines = Array.new(8, true)
 
-      if !block_above.empty?
+      if !grid_block_above.objects.empty?
         texture_for_0xxx = TEXTURE_TOP_XXXX
         texture_for_x0xx = TEXTURE_TOP_XXXX
         texture_for_xx0x = TEXTURE_TOP_XXXX
         texture_for_xxx0 = TEXTURE_TOP_XXXX
         should_draw_lines = [false, false, false, false, false, false, false, false]
       else
-        if !block_left.empty?
+        if !grid_block_left.objects.empty?
           should_draw_lines[0] = false
           should_draw_lines[1] = false
           texture_for_0xxx = TEXTURE_TOP_XXXX
           texture_for_x0xx = TEXTURE_TOP_XXXX
         end
 
-        if !block_behind.empty?
+        if !grid_block_behind.objects.empty?
           should_draw_lines[2] = false
           should_draw_lines[3] = false
           texture_for_x0xx = TEXTURE_TOP_XXXX
           texture_for_xx0x = TEXTURE_TOP_XXXX
         end
 
-        if !block_right.empty?
+        if !grid_block_right.objects.empty?
           should_draw_lines[4] = false
           should_draw_lines[5] = false
           texture_for_xx0x = TEXTURE_TOP_XXXX
           texture_for_xxx0 = TEXTURE_TOP_XXXX
         end
 
-        if !block_front.empty?
+        if !grid_block_front.objects.empty?
           should_draw_lines[6] = false
           should_draw_lines[7] = false
           texture_for_0xxx = TEXTURE_TOP_XXXX
@@ -153,39 +175,41 @@ module Blocks
         *should_draw_lines
       ) do
         Rubuild::Texture.new_from_render(
-          width: SIZE,
-          height: SIZE / 2
+          width: size,
+          height: size / 2
         ) do
-          @textures[texture_for_0xxx].draw(x: 0, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+          @textures[texture_for_0xxx].draw(x: 0, y: size / 4, width: size / 2, height: size / 4)
+          @textures[texture_for_x0xx].draw(x: 0, y: 0, width: size / 2, height: size / 4)
+          @textures[texture_for_xx0x].draw(x: size / 2, y: 0, width: size / 2, height: size / 4)
+          @textures[texture_for_xxx0].draw(x: size / 2, y: size / 4, width: size / 2, height: size / 4)
 
           $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
           $app.sdl_renderer.draw_color = BORDER_COLOR
 
-          $app.sdl_renderer.draw_line(       0,       SIZE / 4,            0,     (SIZE / 2) - 1) if should_draw_lines[0]
-          $app.sdl_renderer.draw_line(       0,              0,            0,           SIZE / 4) if should_draw_lines[1]
+          $app.sdl_renderer.draw_line(       0,       size / 4,            0,     (size / 2) - 1) if should_draw_lines[0]
+          $app.sdl_renderer.draw_line(       0,              0,            0,           size / 4) if should_draw_lines[1]
 
-          $app.sdl_renderer.draw_line(       0,              0,     SIZE / 2,                  0) if should_draw_lines[2]
-          $app.sdl_renderer.draw_line(SIZE / 2,              0,     SIZE - 1,                  0) if should_draw_lines[3]
+          $app.sdl_renderer.draw_line(       0,              0,     size / 2,                  0) if should_draw_lines[2]
+          $app.sdl_renderer.draw_line(size / 2,              0,     size - 1,                  0) if should_draw_lines[3]
 
-          $app.sdl_renderer.draw_line(SIZE - 1,              0,     SIZE - 1,     (SIZE / 4)    ) if should_draw_lines[4]
-          $app.sdl_renderer.draw_line(SIZE - 1,       SIZE / 4,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[5]
+          $app.sdl_renderer.draw_line(size - 1,              0,     size - 1,     (size / 4)    ) if should_draw_lines[4]
+          $app.sdl_renderer.draw_line(size - 1,       size / 4,     size - 1,     (size / 2) - 1) if should_draw_lines[5]
 
-          $app.sdl_renderer.draw_line(SIZE / 2, (SIZE / 2) - 1,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[6]
-          $app.sdl_renderer.draw_line(       0, (SIZE / 2) - 1,     SIZE / 2,     (SIZE / 2) - 1) if should_draw_lines[7]
+          $app.sdl_renderer.draw_line(size / 2, (size / 2) - 1,     size - 1,     (size / 2) - 1) if should_draw_lines[6]
+          $app.sdl_renderer.draw_line(       0, (size / 2) - 1,     size / 2,     (size / 2) - 1) if should_draw_lines[7]
         end
       end
     end
 
-    def bot_texture
-      block_below = world.find_or_initialize_block(block_z: block_z + 1, block_y: block_y, block_x: block_x)
-      block_left = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x - 1)
-      block_behind = world.find_or_initialize_block(block_z: block_z, block_y: block_y - 1, block_x: block_x)
-      block_right = world.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x + 1)
-      block_front = world.find_or_initialize_block(block_z: block_z, block_y: block_y + 1, block_x: block_x)
+    def grid_chunk
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y, grid_chunk_x: grid_chunk_x)
+    end
 
+    def grid_block
+      world.find_or_initialize_grid_block(grid_block_z: grid_block_z, grid_block_y: grid_block_y, grid_block_x: grid_block_x)
+    end
+
+    def bot_texture
       # draw 4 corners of "bot" block
 
       # start with everything assumed to be without any contact with any block
@@ -199,26 +223,26 @@ module Blocks
       should_draw_lines[2] = false # always should have no border
       should_draw_lines[3] = false # always should have no border
 
-      if !block_below.empty?
+      if !grid_block_below.objects.empty?
         texture_for_0xxx = TEXTURE_BOT_XX
         texture_for_xxx0 = TEXTURE_BOT_XX
         should_draw_lines[6] = false
         should_draw_lines[7] = false
       end
 
-      if !block_left.empty?
+      if !grid_block_left.objects.empty?
         should_draw_lines[0] = false
         should_draw_lines[1] = false
         texture_for_0xxx = TEXTURE_BOT_XX
       end
 
-      if !block_right.empty?
+      if !grid_block_right.objects.empty?
         should_draw_lines[4] = false
         should_draw_lines[5] = false
         texture_for_xxx0 = TEXTURE_BOT_XX
       end
 
-      if !block_front.empty?
+      if !grid_block_front.objects.empty?
         should_draw_lines[6] = false
         should_draw_lines[7] = false
         texture_for_0xxx = TEXTURE_BOT_XX
@@ -231,78 +255,54 @@ module Blocks
         *should_draw_lines,
       ) do
         Rubuild::Texture.new_from_render(
-          width: SIZE,
-          height: SIZE / 2
+          width: size,
+          height: size / 2
         ) do
-          @textures[texture_for_0xxx].draw(x: 0, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_x0xx].draw(x: 0, y: 0, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_xx0x].draw(x: SIZE / 2, y: 0, width: SIZE / 2, height: SIZE / 4)
-          @textures[texture_for_xxx0].draw(x: SIZE / 2, y: SIZE / 4, width: SIZE / 2, height: SIZE / 4)
+          @textures[texture_for_0xxx].draw(x: 0, y: size / 4, width: size / 2, height: size / 4)
+          @textures[texture_for_x0xx].draw(x: 0, y: 0, width: size / 2, height: size / 4)
+          @textures[texture_for_xx0x].draw(x: size / 2, y: 0, width: size / 2, height: size / 4)
+          @textures[texture_for_xxx0].draw(x: size / 2, y: size / 4, width: size / 2, height: size / 4)
 
           $app.sdl_renderer.draw_blend_mode = SDL2::BlendMode::BLEND
           $app.sdl_renderer.draw_color = BORDER_COLOR
 
-          $app.sdl_renderer.draw_line(       0,       SIZE / 4,            0,     (SIZE / 2) - 1) if should_draw_lines[0]
-          $app.sdl_renderer.draw_line(       0,              0,            0,           SIZE / 4) if should_draw_lines[1]
+          $app.sdl_renderer.draw_line(       0,       size / 4,            0,     (size / 2) - 1) if should_draw_lines[0]
+          $app.sdl_renderer.draw_line(       0,              0,            0,           size / 4) if should_draw_lines[1]
 
-          $app.sdl_renderer.draw_line(       0,              0,     SIZE / 2,                  0) if should_draw_lines[2]
-          $app.sdl_renderer.draw_line(SIZE / 2,              0,     SIZE - 1,                  0) if should_draw_lines[3]
+          $app.sdl_renderer.draw_line(       0,              0,     size / 2,                  0) if should_draw_lines[2]
+          $app.sdl_renderer.draw_line(size / 2,              0,     size - 1,                  0) if should_draw_lines[3]
 
-          $app.sdl_renderer.draw_line(SIZE - 1,              0,     SIZE - 1,     (SIZE / 4)    ) if should_draw_lines[4]
-          $app.sdl_renderer.draw_line(SIZE - 1,       SIZE / 4,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[5]
+          $app.sdl_renderer.draw_line(size - 1,              0,     size - 1,     (size / 4)    ) if should_draw_lines[4]
+          $app.sdl_renderer.draw_line(size - 1,       size / 4,     size - 1,     (size / 2) - 1) if should_draw_lines[5]
 
-          $app.sdl_renderer.draw_line(SIZE / 2, (SIZE / 2) - 1,     SIZE - 1,     (SIZE / 2) - 1) if should_draw_lines[6]
-          $app.sdl_renderer.draw_line(       0, (SIZE / 2) - 1,     SIZE / 2,     (SIZE / 2) - 1) if should_draw_lines[7]
+          $app.sdl_renderer.draw_line(size / 2, (size / 2) - 1,     size - 1,     (size / 2) - 1) if should_draw_lines[6]
+          $app.sdl_renderer.draw_line(       0, (size / 2) - 1,     size / 2,     (size / 2) - 1) if should_draw_lines[7]
         end
       end
     end
 
-    def block_z
-      z / Blocks::Base::SIZE
+    def grid_block_z
+      z / size
     end
 
-    def block_y
-      y / Blocks::Base::SIZE
+    def grid_block_y
+      y / size
     end
 
-    def block_x
-      x / Blocks::Base::SIZE
+    def grid_block_x
+      x / size
     end
 
-    def chunk_z
-      block_z / Worlds::Chunk::SIZE
+    def grid_chunk_z
+      grid_block_z / Worlds::GridChunk::SIZE
     end
 
-    def chunk_y
-      block_y / Worlds::Chunk::SIZE
+    def grid_chunk_y
+      grid_block_y / Worlds::GridChunk::SIZE
     end
 
-    def chunk_x
-      block_x / Worlds::Chunk::SIZE
-    end
-
-    # def world_chunk_block
-    #   world.chunks[chunk_z] ||= {}
-    #   world.chunks[chunk_z][chunk_y] ||= {}
-    #   world.chunks[chunk_z][chunk_y][chunk_x] ||= {}
-    #   world.chunks[chunk_z][chunk_y][chunk_x][block_z] ||= {}
-    #   world.chunks[chunk_z][chunk_y][chunk_x][block_z][block_y] ||= {}
-    #   world.chunks[chunk_z][chunk_y][chunk_x][block_z][block_y][block_x] ||= {}
-    # end
-
-    def world_chunk_block
-      chunk = world.find_or_initialize_chunk(chunk_z: chunk_z, chunk_y: chunk_y, chunk_x: chunk_x)
-      block = chunk.find_or_initialize_block(block_z: block_z, block_y: block_y, block_x: block_x)
-    end
-
-    def add_to_world_chunks
-      if world_chunk_block[uuid].nil?
-        world_chunk_block[uuid] = self
-      end
-    end
-
-    def remove_from_world_chunks
-      world_chunk_block.delete(uuid)
+    def grid_chunk_x
+      grid_block_x / Worlds::GridChunk::SIZE
     end
 
     private

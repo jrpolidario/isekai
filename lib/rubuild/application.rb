@@ -47,14 +47,42 @@ module Rubuild
         # delegate
         $app.sdl_renderer = $app.window.sdl_renderer
 
+        handle_debugger
+        handle_autoreload_file_changges
+
+        $app
+      end
+
+      private
+
+      def handle_debugger
         if $app.development?
           Thread.new do
             binding.pry
           end
           sleep(0.1)
         end
+      end
 
-        $app
+      def handle_autoreload_file_changges
+        listener = Listen.to(
+          *Dir.glob(File.join(RUBUILD_PATH, 'app', '**', '*/')),
+          *Dir.glob(File.join(RUBUILD_PATH, 'app')),
+          *Dir.glob(File.join(RUBUILD_PATH, 'lib', '**', '*/')),
+          *Dir.glob(File.join(RUBUILD_PATH, 'lib')),
+          only: /\.rb$/
+        ) do |modified, added, removed|
+          modified.each do |modified|
+            load modified
+            puts "autorealoaded modified file: #{modified}"
+          end
+
+          added.each do |added|
+            load added
+            puts "autoloaded new file: #{added}"
+          end
+        end
+        listener.start # not blocking
       end
     end
 

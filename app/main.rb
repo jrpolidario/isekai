@@ -21,11 +21,12 @@ Benchmark.bm do |bm|
     mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
     (0...4).to_a.each do |z|
-      (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
+      # $app.internal.threads << Thread.new do
+        (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
-            if rand(3) >= 2
+            # if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -37,10 +38,10 @@ Benchmark.bm do |bm|
                   z: z * Worlds::GridBlock::SIZE
                 )
               end
-            end
-          # end
+            # end
+          end
         end
-      end
+      # end
     end
 
     # $app.internal.pool.wait_for_termination
@@ -91,6 +92,13 @@ Benchmark.bm do |bm|
       world: $app.state.world,
       x: 11 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
+      z: -2 * Worlds::GridBlock::SIZE
+    )
+
+    $app.state.dirt = Blocks::Dirt01.new(
+      world: $app.state.world,
+      x: 15 * Worlds::GridBlock::SIZE,
+      y: 15 * Worlds::GridBlock::SIZE,
       z: -2 * Worlds::GridBlock::SIZE
     )
 
@@ -184,7 +192,7 @@ $app.tick do
     # $app.state.dirts.map(&:draw)
   # end
   # $app.internal.pool.post do
-    $app.state.world.draw#(only_cached: true)
+  $app.state.world.draw#(only_cached: true)
   # end
   # $app.state.world.draw(only_cached: true)
 
@@ -198,6 +206,57 @@ $app.tick do
 
   # $app.state.world.chunks[0][0][0].blocks[0][0][0].first.second.draw
 
+  # $app.state.dirts.each do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
+
+  # $app.state.dirts[rand(1000)].tap do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
+
+  if rand(100) <= 75
+    $app.state.dirt.x += 1
+  end
+
+  if rand(100) <= 75
+    $app.state.dirt.x -= 1
+  end
+
+  if rand(100) <= 75
+    $app.state.dirt.y += 1
+  end
+
+  if rand(100) <= 75
+    $app.state.dirt.y -= 1
+  end
 
 
   $app.state.fps.string = "FPS: #{$app.internal.fps}"

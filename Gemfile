@@ -20,4 +20,5 @@ gem 'thwait'
 group :development do
   gem 'pry'
   gem 'pry-nav'
+  gem 'listen', '~> 3.0'
 end

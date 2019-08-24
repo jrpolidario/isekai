@@ -45,6 +45,25 @@ module Worlds
         end
       end
     end
+
+    # for debugging
+    def all_grid_chunks
+      hash = {}
+      @grid_chunks.sort.reverse.each do |grid_chunk_z, h|
+        h.sort.each do |grid_chunk_y, h|
+          h.sort.each do |grid_chunk_x, grid_chunk|
+            hash[
+              {
+                grid_chunk_z: grid_chunk_z,
+                grid_chunk_y: grid_chunk_y,
+                grid_chunk_x: grid_chunk_x,
+              }
+            ] = grid_chunk
+          end
+        end
+      end
+      hash
+    end
   end
 end
 

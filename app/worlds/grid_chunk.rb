@@ -1,10 +1,10 @@
 module Worlds
   class GridChunk
-    SIZE = 8
+    SIZE = 16
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks
 
-    def initialize(world: world, grid_chunk_x:, grid_chunk_y:, grid_chunk_z:)
+    def initialize(world:, grid_chunk_x:, grid_chunk_y:, grid_chunk_z:)
       @world = world
       @grid_chunk_x = grid_chunk_x
       @grid_chunk_y = grid_chunk_y

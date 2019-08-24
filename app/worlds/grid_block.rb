@@ -1,6 +1,6 @@
 module Worlds
   class GridBlock
-    SIZE = 32
+    SIZE = 16
 
     attr_reader :grid_chunk, :grid_block_x, :grid_block_y, :grid_block_z, :objects
 
@@ -27,9 +27,9 @@ module Worlds
     def render
       @objects.each do |uuid, object|
         object.draw(
-          x: (grid_block_x * Worlds::GridBlock::SIZE) - grid_chunk.pixel_x,
-          y: (grid_block_y * Worlds::GridBlock::SIZE) - grid_chunk.pixel_y,
-          z: (grid_block_z * Worlds::GridBlock::SIZE) - grid_chunk.pixel_z
+          x: object.x - grid_chunk.pixel_x,
+          y: object.y - grid_chunk.pixel_y,
+          z: object.z - grid_chunk.pixel_z
         )
       end
     end

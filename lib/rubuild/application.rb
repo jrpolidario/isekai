@@ -147,10 +147,10 @@ module Rubuild
     end
 
     def fps_end_handler
-      # TODO: limit fps: not working properly, it seems
-      @milliseconds_per_frame ||= 1000 * 1 * 0.75 / $app.window.max_fps.to_f
-      elapsed_since_frame_start_time = Time.now - internal.frame_start_time
-      sleep((@milliseconds_per_frame - elapsed_since_frame_start_time) / 1000)
+      # # TODO: limit fps: not working properly, it seems
+      # @milliseconds_per_frame ||= 1000 * 1 * 0.75 / $app.window.max_fps.to_f
+      # elapsed_since_frame_start_time = Time.now - internal.frame_start_time
+      # sleep((@milliseconds_per_frame - elapsed_since_frame_start_time) / 1000)
 
       internal.frames += 1
 

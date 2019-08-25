@@ -15,7 +15,7 @@ module Blocks
     TEXTURE_BOT_0X = 8
     TEXTURE_BOT_X0 = 9
 
-    BORDER_COLOR = [32, 32, 32, 96]
+    BORDER_COLOR = [32, 32, 32, 48]
 
     delegate(
       :grid_block_above, :grid_block_below,
@@ -47,47 +47,56 @@ module Blocks
       Worlds::GridBlock::SIZE
     end
 
-    def initialize(world:, x:, y:, z:)
+    def initialize(world: nil, x: nil, y: nil, z: nil)
       @world = world
       @x = x
       @y = y
       @z = z
       @textures = []
 
-      @uuid = SecureRandom.uuid
+      @textures[TEXTURE_TOP_XXXX] = Blocks::Base.memoized! :textures, (path = sampled_resolved_block_full_file_path('top_xxxx')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_TOP_0000] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('top_0000.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_TOP_0XXX] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('top_0xxx.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_TOP_X0XX] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('top_x0xx.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_TOP_XX0X] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('top_xx0x.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_TOP_XXX0] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('top_xxx0.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_BOT_XX] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('bot_xx.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_BOT_00] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('bot_00.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_BOT_0X] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('bot_0x.png')) do
+        Textures::Base.new(file_path: path)
+      end
+      @textures[TEXTURE_BOT_X0] = Blocks::Base.memoized! :textures, (path = resolved_block_full_file_path('bot_x0.png')) do
+        Textures::Base.new(file_path: path)
+      end
+    end
 
-      @textures[TEXTURE_TOP_XXXX] = Blocks::Base.memoized! :"textures_#{path = sampled_resolved_block_full_file_path('top_xxxx')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_TOP_0000] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('top_0000.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_TOP_0XXX] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('top_0xxx.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_TOP_X0XX] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('top_x0xx.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_TOP_XX0X] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('top_xx0x.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_TOP_XXX0] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('top_xxx0.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_BOT_XX] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('bot_xx.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_BOT_00] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('bot_00.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_BOT_0X] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('bot_0x.png')}" do
-        Textures::Base.new(file_path: path)
-      end
-      @textures[TEXTURE_BOT_X0] = Blocks::Base.memoized! :"textures_#{path = resolved_block_full_file_path('bot_x0.png')}" do
-        Textures::Base.new(file_path: path)
-      end
+    def clone
+      cloned = super
+      cloned.instance_variable_set(:@textures, self.textures.clone)
+      cloned
+    end
 
-      grid_block.add_to_objects(self)
+    def self.new!(world:, x:, y:, z:)
+      block = new(world: world, x: x, y: y, z: z)
+      block.uuid = SecureRandom.uuid.to_sym # Time.now.to_f
+      block.grid_block.add_to_objects(block)
+      block
     end
 
     def render
@@ -308,7 +317,7 @@ module Blocks
     private
 
     def resolved_block_full_file_path(file_path)
-      Blocks::Base.memoized!(:"resolved_block_full_file_path_#{file_path}") do
+      Blocks::Base.memoized!(:resolved_block_full_file_path, file_path.to_sym) do
         if File.exist?(file_path)
           file_path
         elsif (
@@ -329,7 +338,7 @@ module Blocks
     end
 
     def sampled_resolved_block_full_file_path(dir_path)
-      Blocks::Base.memoized!(:"sampled_resolved_block_full_file_path_cache_#{dir_path}") do
+      Blocks::Base.memoized!(:sampled_resolved_block_full_file_path, dir_path.to_sym) do
         resolved_dir_path = resolved_block_full_file_path(dir_path)
         Dir[File.join(resolved_dir_path, '*')]
       end.sample

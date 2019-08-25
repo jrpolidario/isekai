@@ -13,6 +13,8 @@ $app.state.fps = Texts::Default.new(x: 0, y: 0, color: :green)
 
 $app.state.dirts = []
 
+reference_dirt = Blocks::Dirt01.new(world: $app.state.world)
+
 Benchmark.bm do |bm|
   $app.internal.bm = bm
 
@@ -31,12 +33,26 @@ Benchmark.bm do |bm|
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
               )
-                $app.state.dirts << Blocks::Dirt01.new(
-                  world: $app.state.world,
-                  x: x * Worlds::GridBlock::SIZE,
-                  y: y * Worlds::GridBlock::SIZE,
-                  z: z * Worlds::GridBlock::SIZE
-                )
+                dirt = reference_dirt.clone
+                dirt.instance_eval do
+                  @x = x * Worlds::GridBlock::SIZE
+                  @y = y * Worlds::GridBlock::SIZE
+                  @z = z * Worlds::GridBlock::SIZE
+                  @uuid = SecureRandom.uuid.to_sym # Time.now.to_f
+                  @textures[Blocks::Base::TEXTURE_TOP_XXXX] = Blocks::Base.memoized! :textures, (path = sampled_resolved_block_full_file_path('top_xxxx')) do
+                    Textures::Base.new(file_path: path)
+                  end
+                end
+                dirt.grid_block.add_to_objects(dirt)
+                $app.state.dirts << dirt
+
+
+                # $app.state.dirts << Blocks::Dirt01.new!(
+                #   world: $app.state.world,
+                #   x: x * Worlds::GridBlock::SIZE,
+                #   y: y * Worlds::GridBlock::SIZE,
+                #   z: z * Worlds::GridBlock::SIZE
+                # )
               end
             # end
           end
@@ -46,56 +62,56 @@ Benchmark.bm do |bm|
 
     # $app.internal.pool.wait_for_termination
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 5 * Worlds::GridBlock::SIZE,
       y: 5 * Worlds::GridBlock::SIZE,
       z: -1 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 6 * Worlds::GridBlock::SIZE,
       y: 5 * Worlds::GridBlock::SIZE,
       z: -1 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 6 * Worlds::GridBlock::SIZE,
       y: 6 * Worlds::GridBlock::SIZE,
       z: -1 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 10 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
       z: -1 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 10 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
       z: -2 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 11 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
       z: -1 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirts << Blocks::Dirt01.new(
+    $app.state.dirts << Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 11 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
       z: -2 * Worlds::GridBlock::SIZE
     )
 
-    $app.state.dirt = Blocks::Dirt01.new(
+    $app.state.dirt = Blocks::Dirt01.new!(
       world: $app.state.world,
       x: 15 * Worlds::GridBlock::SIZE,
       y: 15 * Worlds::GridBlock::SIZE,

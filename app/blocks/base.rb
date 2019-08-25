@@ -15,7 +15,7 @@ module Blocks
     TEXTURE_BOT_0X = 8
     TEXTURE_BOT_X0 = 9
 
-    BORDER_COLOR = [32, 32, 32, 48]
+    BORDER_COLOR = [32, 32, 32, 64] # 48
 
     delegate(
       :grid_block_above, :grid_block_below,

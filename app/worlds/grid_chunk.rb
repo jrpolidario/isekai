@@ -54,8 +54,8 @@ module Worlds
       # )
 
       Rubuild::Texture.new_from_render(
-        width: grid_chunk_pixels_size,
-        height: grid_chunk_pixels_size
+        width: grid_chunk_pixels_size * 1.5,
+        height: grid_chunk_pixels_size * 1.5
       ) do
         @grid_blocks.sort.reverse.each do |grid_block_z, h|
           h.sort.each do |grid_block_y, h|

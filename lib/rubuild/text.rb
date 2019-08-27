@@ -23,6 +23,7 @@ module Rubuild
     attr_accessor :string, :x, :y, :width, :height, :font
 
     after :string= do |arg|
+      @string = ' ' if @string.to_s == '' # prevent width size error
       self.width, self.height = font.size_text(@string)
     end
 
@@ -34,7 +35,6 @@ module Rubuild
       size: 16,
       font_file_path:
     )
-      @string = string
       @x = x
       @y = y
       @color = color
@@ -43,6 +43,8 @@ module Rubuild
       @font = Font.open(
         resolved_font_full_file_path(font_file_path), @size
       )
+
+      self.string = string
       @width, @height = @font.size_text(@string)
     end
 

@@ -1,8 +1,8 @@
 module Worlds
   class GridChunk
-    SIZE = 16
+    SIZE = 4
 
-    attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks
+    attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 
     def initialize(world:, grid_chunk_x:, grid_chunk_y:, grid_chunk_z:)
       @world = world
@@ -10,17 +10,71 @@ module Worlds
       @grid_chunk_y = grid_chunk_y
       @grid_chunk_z = grid_chunk_z
       @grid_blocks = {}
+      @grid_blocks_yxz = {}
+      @grid_blocks_xzy = {}
     end
 
     def find_or_initialize_grid_block(grid_block_z:, grid_block_y:, grid_block_x:)
       @grid_blocks[grid_block_z] ||= {}
       @grid_blocks[grid_block_z][grid_block_y] ||= {}
-      @grid_blocks[grid_block_z][grid_block_y][grid_block_x] ||= GridBlock.new(
-        grid_chunk: self,
-        grid_block_x: grid_block_x,
-        grid_block_y: grid_block_y,
-        grid_block_z: grid_block_z
+      @grid_blocks[grid_block_z][grid_block_y][grid_block_x] ||= (
+        grid_block = GridBlock.new(
+          grid_chunk: self,
+          grid_block_x: grid_block_x,
+          grid_block_y: grid_block_y,
+          grid_block_z: grid_block_z
+        )
+
+        @grid_blocks_yxz[grid_block_y] ||= {}
+        @grid_blocks_yxz[grid_block_y][grid_block_x] ||= {}
+        @grid_blocks_yxz[grid_block_y][grid_block_x][grid_block_z] = grid_block
+
+        @grid_blocks_xzy[grid_block_x] ||= {}
+        @grid_blocks_xzy[grid_block_x][grid_block_z] ||= {}
+        @grid_blocks_xzy[grid_block_x][grid_block_z][grid_block_y] = grid_block
+
+        grid_block
       )
+    end
+
+    def find_grid_block(grid_block_z:, grid_block_y:, grid_block_x:)
+      @grid_blocks.dig(grid_block_z, grid_block_y, grid_block_x)
+    end
+
+    def remove_grid_block(grid_block)
+      grid_block_z = grid_block.grid_block_z
+      grid_block_y = grid_block.grid_block_y
+      grid_block_x = grid_block.grid_block_x
+
+      @grid_blocks[grid_block_z] || return
+      @grid_blocks[grid_block_z][grid_block_y] || return
+      @grid_blocks[grid_block_z][grid_block_y].delete(grid_block_x)
+      @grid_blocks_yxz[grid_block_y][grid_block_x].delete(grid_block_z)
+      @grid_blocks_xzy[grid_block_x][grid_block_z].delete(grid_block_y)
+    end
+
+    def grid_chunk_above(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z - step, grid_chunk_y: grid_chunk_y, grid_chunk_x: grid_chunk_x)
+    end
+
+    def grid_chunk_below(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z + step, grid_chunk_y: grid_chunk_y, grid_chunk_x: grid_chunk_x)
+    end
+
+    def grid_chunk_left(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y, grid_chunk_x: grid_chunk_x - step)
+    end
+
+    def grid_chunk_behind(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y - step, grid_chunk_x: grid_chunk_x)
+    end
+
+    def grid_chunk_right(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y, grid_chunk_x: grid_chunk_x + step)
+    end
+
+    def grid_chunk_front(step: 1)
+      world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y + step, grid_chunk_x: grid_chunk_x)
     end
 
     # # callback!

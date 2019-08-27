@@ -10,6 +10,7 @@ $app.internal.threads = []
 $app.state.world = Worlds::Default.new
 
 $app.state.fps = Texts::Default.new(x: 0, y: 0, color: :green)
+$app.state.puts = Texts::Default.new(x: 50, y: $app.window.height - 114)
 
 $app.state.dirts = []
 
@@ -22,7 +23,7 @@ Benchmark.bm do |bm|
     mid_block_x = ($app.window.width / Worlds::GridBlock::SIZE) / 2
     mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
-    (0...4).to_a.each do |z|
+    (0...1).to_a.each do |z|
       # $app.internal.threads << Thread.new do
         (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
         # $app.internal.pool.post do
@@ -44,6 +45,8 @@ Benchmark.bm do |bm|
                   end
                 end
                 dirt.grid_block.add_to_objects(dirt)
+                dirt.trace_casted_shadow
+                dirt.cast_shadow
                 $app.state.dirts << dirt
 
 
@@ -109,6 +112,13 @@ Benchmark.bm do |bm|
       x: 11 * Worlds::GridBlock::SIZE,
       y: 10 * Worlds::GridBlock::SIZE,
       z: -2 * Worlds::GridBlock::SIZE
+    )
+
+    $app.state.dirt2 = Blocks::Dirt01.new!(
+      world: $app.state.world,
+      x: 15 * Worlds::GridBlock::SIZE,
+      y: 15 * Worlds::GridBlock::SIZE,
+      z: 0 * Worlds::GridBlock::SIZE
     )
 
     $app.state.dirt = Blocks::Dirt01.new!(
@@ -258,25 +268,49 @@ $app.tick do
   #   end
   # end
 
-  if rand(100) <= 75
-    $app.state.dirt.x += 1
+  $app.state.dirts[560].tap do |dirt|
+    if rand(100) <= 75
+      dirt.x += 1
+    end
+
+    if rand(100) <= 75
+      dirt.x -= 1
+    end
+
+    if rand(100) <= 75
+      dirt.y += 1
+    end
+
+    if rand(100) <= 75
+      dirt.y -= 1
+    end
   end
 
-  if rand(100) <= 75
-    $app.state.dirt.x -= 1
-  end
-
-  if rand(100) <= 75
-    $app.state.dirt.y += 1
-  end
-
-  if rand(100) <= 75
-    $app.state.dirt.y -= 1
-  end
+  # if rand(100) <= 75
+  #   $app.state.dirt.x += 1
+  # end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.x -= 1
+  # end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.y += 1
+  # end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.y -= 1
+  # end
 
 
   $app.state.fps.string = "FPS: #{$app.internal.fps}"
   $app.state.fps.draw
+
+  # (object_uid, object) = $app.state.dirt.grid_block.find_nearest_grid_block_below&.objects&.first
+  # puts "#{object.class}-#{object_uid}"
+
+  # $app.state.puts.string = $app.state.dirt.grid_block.find_nearest_grid_block_below&.objects.to_s #&.map(&:casted_shadow_by).to_s # $app.state.dirt.grid_block.find_nearest_grid_block_below.to_s
+  $app.state.puts.draw
 
   # sleep 0.01
 end

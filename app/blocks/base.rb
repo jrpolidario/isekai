@@ -2,7 +2,7 @@ module Blocks
   class Base
     include SuperCallbacks
 
-    attr_accessor :world, :x, :y, :z, :textures, :uuid
+    attr_accessor :world, :x, :y, :z, :textures, :uuid, :casted_shadow_by
 
     TEXTURE_TOP_XXXX = 0
     TEXTURE_TOP_0000 = 1
@@ -26,19 +26,38 @@ module Blocks
     )
 
     %i[x= y= z=].each do |m|
-      before m do
-        grid_blocks_surrounding_objects.each do |uuid, object|
-          world.unmemoized!(:draw, object.grid_chunk)
-        end
+      before m do |arg|
+        if instance_variable_get(:"@#{m.to_s.chop}") != arg
+          grid_blocks_surrounding_objects.each do |uuid, object|
+            world.unmemoized!(:draw, object.grid_chunk)
+          end
 
-        grid_block.remove_from_objects(self)
+          grid_block.remove_from_objects(self)
+
+          # re-trace shadows
+          nearest_grid_block = grid_block.find_nearest_grid_block_above
+
+          if nearest_grid_block
+            nearest_grid_block.objects.each do |uuid, object|
+              object.cast_shadow
+            end
+          end
+        end
       end
 
-      after m do
-        grid_block.add_to_objects(self)
+      after m do |arg|
+        if instance_variable_changed? :"@#{m.to_s.chop}"
+          grid_block.add_to_objects(self)
 
-        grid_blocks_surrounding_objects.each do |uuid, object|
-          world.unmemoized!(:draw, object.grid_chunk)
+          # pp [grid_blocks_surrounding_objects.size, grid_blocks_surrounding_objects.to_a.map(&:second).map(&:grid_chunk).map(&:object_id)]
+
+          grid_blocks_surrounding_objects.each do |uuid, object|
+            world.unmemoized!(:draw, object.grid_chunk)
+          end
+
+          # re-trace shadows
+          trace_casted_shadow
+          cast_shadow
         end
       end
     end
@@ -53,6 +72,7 @@ module Blocks
       @y = y
       @z = z
       @textures = []
+      @casted_shadow_by = Set.new
 
       @textures[TEXTURE_TOP_XXXX] = Blocks::Base.memoized! :textures, (path = sampled_resolved_block_full_file_path('top_xxxx')) do
         Textures::Base.new(file_path: path)
@@ -89,6 +109,7 @@ module Blocks
     def clone
       cloned = super
       cloned.instance_variable_set(:@textures, self.textures.clone)
+      cloned.instance_variable_set(:@casted_shadow_by, self.casted_shadow_by.clone)
       cloned
     end
 
@@ -96,7 +117,29 @@ module Blocks
       block = new(world: world, x: x, y: y, z: z)
       block.uuid = SecureRandom.uuid.to_sym # Time.now.to_f
       block.grid_block.add_to_objects(block)
+      block.trace_casted_shadow
+      block.cast_shadow
       block
+    end
+
+    def trace_casted_shadow
+      if grid_block.grid_block_above&.objects&.empty?
+        self.casted_shadow_by = Set.new(
+          *(grid_block.find_nearest_grid_block_above&.objects || [])
+        )
+      end
+    end
+
+    def cast_shadow
+      if grid_block.grid_block_below&.objects&.empty?
+        nearest_grid_block = grid_block.find_nearest_grid_block_below
+
+        if nearest_grid_block
+          nearest_grid_block.objects.each do |uuid, object|
+            object.casted_shadow_by << self
+          end
+        end
+      end
     end
 
     def render
@@ -142,35 +185,35 @@ module Blocks
 
       should_draw_lines = Array.new(8, true)
 
-      if !grid_block_above.objects.empty?
+      if grid_block_above&.objects&.any?
         texture_for_0xxx = TEXTURE_TOP_XXXX
         texture_for_x0xx = TEXTURE_TOP_XXXX
         texture_for_xx0x = TEXTURE_TOP_XXXX
         texture_for_xxx0 = TEXTURE_TOP_XXXX
         should_draw_lines = [false, false, false, false, false, false, false, false]
       else
-        if !grid_block_left.objects.empty?
+        if grid_block_left&.objects&.any?
           should_draw_lines[0] = false
           should_draw_lines[1] = false
           texture_for_0xxx = TEXTURE_TOP_XXXX
           texture_for_x0xx = TEXTURE_TOP_XXXX
         end
 
-        if !grid_block_behind.objects.empty?
+        if grid_block_behind&.objects&.any?
           should_draw_lines[2] = false
           should_draw_lines[3] = false
           texture_for_x0xx = TEXTURE_TOP_XXXX
           texture_for_xx0x = TEXTURE_TOP_XXXX
         end
 
-        if !grid_block_right.objects.empty?
+        if grid_block_right&.objects&.any?
           should_draw_lines[4] = false
           should_draw_lines[5] = false
           texture_for_xx0x = TEXTURE_TOP_XXXX
           texture_for_xxx0 = TEXTURE_TOP_XXXX
         end
 
-        if !grid_block_front.objects.empty?
+        if grid_block_front&.objects&.any?
           should_draw_lines[6] = false
           should_draw_lines[7] = false
           texture_for_0xxx = TEXTURE_TOP_XXXX
@@ -232,26 +275,26 @@ module Blocks
       should_draw_lines[2] = false # always should have no border
       should_draw_lines[3] = false # always should have no border
 
-      if !grid_block_below.objects.empty?
+      if grid_block_below&.objects&.any?
         texture_for_0xxx = TEXTURE_BOT_XX
         texture_for_xxx0 = TEXTURE_BOT_XX
         should_draw_lines[6] = false
         should_draw_lines[7] = false
       end
 
-      if !grid_block_left.objects.empty?
+      if grid_block_left&.objects&.any?
         should_draw_lines[0] = false
         should_draw_lines[1] = false
         texture_for_0xxx = TEXTURE_BOT_XX
       end
 
-      if !grid_block_right.objects.empty?
+      if grid_block_right&.objects&.any?
         should_draw_lines[4] = false
         should_draw_lines[5] = false
         texture_for_xxx0 = TEXTURE_BOT_XX
       end
 
-      if !grid_block_front.objects.empty?
+      if grid_block_front&.objects&.any?
         should_draw_lines[6] = false
         should_draw_lines[7] = false
         texture_for_0xxx = TEXTURE_BOT_XX

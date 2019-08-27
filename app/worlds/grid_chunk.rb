@@ -9,14 +9,14 @@ module Worlds
       @grid_chunk_x = grid_chunk_x
       @grid_chunk_y = grid_chunk_y
       @grid_chunk_z = grid_chunk_z
-      @grid_blocks = {}
-      @grid_blocks_yxz = {}
-      @grid_blocks_xzy = {}
+      @grid_blocks = SortedHash::IntegerKeys.new
+      @grid_blocks_yxz = SortedHash::IntegerKeys.new
+      @grid_blocks_xzy = SortedHash::IntegerKeys.new
     end
 
     def find_or_initialize_grid_block(grid_block_z:, grid_block_y:, grid_block_x:)
-      @grid_blocks[grid_block_z] ||= {}
-      @grid_blocks[grid_block_z][grid_block_y] ||= {}
+      @grid_blocks[grid_block_z] ||= SortedHash::IntegerKeys.new
+      @grid_blocks[grid_block_z][grid_block_y] ||= SortedHash::IntegerKeys.new
       @grid_blocks[grid_block_z][grid_block_y][grid_block_x] ||= (
         grid_block = GridBlock.new(
           grid_chunk: self,
@@ -25,12 +25,12 @@ module Worlds
           grid_block_z: grid_block_z
         )
 
-        @grid_blocks_yxz[grid_block_y] ||= {}
-        @grid_blocks_yxz[grid_block_y][grid_block_x] ||= {}
+        @grid_blocks_yxz[grid_block_y] ||= SortedHash::IntegerKeys.new
+        @grid_blocks_yxz[grid_block_y][grid_block_x] ||= SortedHash::IntegerKeys.new
         @grid_blocks_yxz[grid_block_y][grid_block_x][grid_block_z] = grid_block
 
-        @grid_blocks_xzy[grid_block_x] ||= {}
-        @grid_blocks_xzy[grid_block_x][grid_block_z] ||= {}
+        @grid_blocks_xzy[grid_block_x] ||= SortedHash::IntegerKeys.new
+        @grid_blocks_xzy[grid_block_x][grid_block_z] ||= SortedHash::IntegerKeys.new
         @grid_blocks_xzy[grid_block_x][grid_block_z][grid_block_y] = grid_block
 
         grid_block
@@ -111,9 +111,9 @@ module Worlds
         width: grid_chunk_pixels_size * 1.5,
         height: grid_chunk_pixels_size * 1.5
       ) do
-        @grid_blocks.sort.reverse.each do |grid_block_z, h|
-          h.sort.each do |grid_block_y, h|
-            h.sort.each do |grid_block_x, grid_block|
+        @grid_blocks.reverse_each do |grid_block_z, h|
+          h.each do |grid_block_y, h|
+            h.each do |grid_block_x, grid_block|
               grid_block.render
             end
           end

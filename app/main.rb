@@ -8,6 +8,7 @@ Dir[File.join(__dir__, '**', 'base.rb')].each { |file| require file }
 $app.internal.threads = []
 
 $app.state.world = Worlds::Default.new
+$app.state.camera = Worlds::Camera.new
 
 $app.state.fps = Texts::Default.new(x: 0, y: 0, color: :green)
 $app.state.puts = Texts::Default.new(x: 50, y: $app.window.height - 114)
@@ -125,7 +126,7 @@ Benchmark.bm do |bm|
       world: $app.state.world,
       x: 15 * Worlds::GridBlock::SIZE,
       y: 15 * Worlds::GridBlock::SIZE,
-      z: -2 * Worlds::GridBlock::SIZE
+      z: -6 * Worlds::GridBlock::SIZE
     )
 
     # ThreadsWait.all_waits(*$app.internal.threads)
@@ -303,6 +304,10 @@ $app.tick do
   if rand(100) <= 75
     $app.state.dirt.y -= 1
   end
+
+  $app.state.camera.x = $app.state.dirt.x
+  $app.state.camera.y = $app.state.dirt.y
+  $app.state.camera.z = $app.state.dirt.z
 
   $app.state.world.draw
 

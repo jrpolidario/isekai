@@ -21,4 +21,25 @@ Hash.class_eval do
       self[current_key].dig_or_set(*nested_keys[1..-1], with: with)
     end
   end
+
+  # ref: https://stackoverflow.com/questions/17613426/flattening-nested-hash-to-an-array
+  def deep_flatten(levels: nil)
+    flat_map do |k, v|
+      if v.is_a?(Hash) && (levels.nil? || levels > 0)
+        [k, *v.deep_flatten]
+      else
+        [k, v]
+      end
+    end
+  end
+
+  def deep_map_values(levels: nil)
+    flat_map do |k, v|
+      if v.is_a?(Hash) && (levels.nil? || levels > 0)
+        [*v.deep_map_values]
+      else
+        [v]
+      end
+    end
+  end
 end

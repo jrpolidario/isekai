@@ -30,7 +30,7 @@ Benchmark.bm do |bm|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
-            # if rand(3) >= 2
+            if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -58,7 +58,7 @@ Benchmark.bm do |bm|
                 #   z: z * Worlds::GridBlock::SIZE
                 # )
               end
-            # end
+            end
           end
         end
       # end

@@ -85,21 +85,36 @@ module Worlds
                     grid_chunk_rendered = rememoized!(:draw, changed_grid_chunk) { changed_grid_chunk.render }
                     # chunks_to_be_reblitted.dig_set(grid_chunk_z, grid_chunk_y, grid_chunk_x, with: changed_grid_chunk)
 
-                    lookahead = 5
+                    lookahead = 10
 
                     (0..lookahead).each do |n|
-                      grid_chunk_below = find_grid_chunk(
+                      grid_chunk_below_behind = find_grid_chunk(
                         grid_chunk_z: grid_chunk_z + n,
                         grid_chunk_y: grid_chunk_y - n,
                         grid_chunk_x: grid_chunk_x
                       )
 
-                      if grid_chunk_below
+                      if grid_chunk_below_behind
                         chunks_to_be_reblitted.dig_set(
-                          grid_chunk_below.grid_chunk_z,
-                          grid_chunk_below.grid_chunk_y,
-                          grid_chunk_below.grid_chunk_x,
-                          with: grid_chunk_below
+                          grid_chunk_below_behind.grid_chunk_z,
+                          grid_chunk_below_behind.grid_chunk_y,
+                          grid_chunk_below_behind.grid_chunk_x,
+                          with: grid_chunk_below_behind
+                        )
+                      end
+
+                      grid_chunk_behind = find_grid_chunk(
+                        grid_chunk_z: grid_chunk_z + n,
+                        grid_chunk_y: grid_chunk_y - n + 1,
+                        grid_chunk_x: grid_chunk_x
+                      )
+
+                      if grid_chunk_behind
+                        chunks_to_be_reblitted.dig_set(
+                          grid_chunk_behind.grid_chunk_z,
+                          grid_chunk_behind.grid_chunk_y,
+                          grid_chunk_behind.grid_chunk_x,
+                          with: grid_chunk_behind
                         )
                       end
                     end

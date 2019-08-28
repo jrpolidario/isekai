@@ -203,12 +203,14 @@ Benchmark.bm do |bm|
   #   $app.state.world.draw
   # end
 
-  bm.report 'Drawing World...' do
-    $app.state.world.draw
-  end
+  # bm.report 'Drawing World...' do
+  #   $app.state.world.draw
+  # end
 end
 
 $app.tick do
+  $app.temp.changed_grid_chunks = {}
+
   $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
 
   #
@@ -218,7 +220,7 @@ $app.tick do
     # $app.state.dirts.map(&:draw)
   # end
   # $app.internal.pool.post do
-  $app.state.world.draw#(only_cached: true)
+  # $app.state.world.draw#(only_cached: true)
   # end
   # $app.state.world.draw(only_cached: true)
 
@@ -268,40 +270,41 @@ $app.tick do
   #   end
   # end
 
-  $app.state.dirts[560].tap do |dirt|
-    if rand(100) <= 75
-      dirt.x += 1
-    end
+  # $app.state.dirts[1500].tap do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
 
-    if rand(100) <= 75
-      dirt.x -= 1
-    end
-
-    if rand(100) <= 75
-      dirt.y += 1
-    end
-
-    if rand(100) <= 75
-      dirt.y -= 1
-    end
+  if rand(100) <= 75
+    $app.state.dirt.x += 1
   end
 
-  # if rand(100) <= 75
-  #   $app.state.dirt.x += 1
-  # end
-  #
-  # if rand(100) <= 75
-  #   $app.state.dirt.x -= 1
-  # end
-  #
-  # if rand(100) <= 75
-  #   $app.state.dirt.y += 1
-  # end
-  #
-  # if rand(100) <= 75
-  #   $app.state.dirt.y -= 1
-  # end
+  if rand(100) <= 75
+    $app.state.dirt.x -= 1
+  end
 
+  if rand(100) <= 75
+    $app.state.dirt.y += 1
+  end
+
+  if rand(100) <= 75
+    $app.state.dirt.y -= 1
+  end
+
+  $app.state.world.draw
 
   $app.state.fps.string = "FPS: #{$app.internal.fps}"
   $app.state.fps.draw

@@ -20,15 +20,22 @@ Object.class_eval do
     #     raise
     #   end
     # end
-    (memoized = (
+    memoized = (
       instance_variable_get(:@memoized) ||
         instance_variable_set(:@memoized, {})
-    )).has_key?(identifier) ?
-      memoized[identifier] :
-      (memoized[identifier] = yield)
+    )
 
     memoized[identifier] = yield unless memoized.has_key? identifier
     memoized[identifier]
+  end
+
+  def rememoized!(*identifier, &block)
+    memoized = (
+      instance_variable_get(:@memoized) ||
+        instance_variable_set(:@memoized, {})
+    )
+
+    memoized[identifier] = yield
   end
 
   def memoized_with_object!(*identifier, &block)

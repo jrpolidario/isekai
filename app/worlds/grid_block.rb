@@ -118,5 +118,10 @@ module Worlds
     def grid_blocks_surrounding_objects(step: 1, include_self: true)
       grid_blocks_surrounding(step: step, include_self: include_self)&.map(&:objects)&.inject({}, :merge) || []
     end
+
+    # def is_visible?
+    #   grid_chunk.world.find_grid_block(grid_block_z: grid_block_z - step, grid_block_y: grid_block_y, grid_block_x: grid_block_x)
+    #   grid_block_z +
+    # end
   end
 end

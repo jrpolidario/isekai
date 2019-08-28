@@ -2,7 +2,7 @@ Dir[File.join(__dir__, 'application', '*.rb')].each { |file| require file }
 
 module Rubuild
   class Application
-    attr_accessor :name, :state, :inputs, :outputs, :window, :sdl_renderer, :temp, :internal
+    attr_accessor :name, :state, :temp, :inputs, :outputs, :window, :sdl_renderer, :temp, :internal
     delegate :sdl_renderer, to: :window
 
     FPS_RESET_INTERVAL = 0.2 # seconds
@@ -108,6 +108,7 @@ module Rubuild
     def loop_inits
       fps_start_handler
       internal.current_inputs = Set.new
+      self.temp = OpenStruct.new
     end
 
     def loop_cleanups

@@ -54,6 +54,31 @@ module Rubuild
       Texture.new(sdl_texture: current_render_target)
     end
 
+    def update_from_render
+      # allow alpha blending (transparency)??
+      sdl_texture.blend_mode = SDL2::BlendMode::BLEND
+
+      Thread.current[:rubuild_render_targets] ||= []
+      Thread.current[:rubuild_render_targets] << sdl_texture
+
+      $app.sdl_renderer.render_target = sdl_texture
+      $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0, 1]
+      $app.sdl_renderer.clear
+
+    	yield
+
+      Thread.current[:rubuild_render_targets].pop
+
+      if Thread.current[:rubuild_render_targets].empty?
+        Thread.current[:rubuild_render_targets] = nil
+        $app.sdl_renderer.reset_render_target
+      else
+        $app.sdl_renderer.render_target = Thread.current[:rubuild_render_targets].last
+      end
+
+      self
+    end
+
     # delegate
 
     def width

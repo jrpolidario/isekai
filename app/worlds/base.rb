@@ -3,7 +3,7 @@ module Worlds
     attr_accessor :grid_chunks
 
     def initialize
-      @grid_chunks = SortedHash::IntegerKeys.new
+      @grid_chunks = {}
     end
 
     def find_grid_chunk(grid_chunk_z:, grid_chunk_y:, grid_chunk_x:)
@@ -39,31 +39,86 @@ module Worlds
     end
 
     def draw
-      # Worlds::Base.memoized! :draw do
-      #   Rubuild::Texture.new_from_render(
-      #     width: $app.window.width,
-      #     height: $app.window.height
-      #   ) do
-          @grid_chunks.reverse_each do |grid_chunk_z, h|
-            h.each do |grid_chunk_y, h|
-              h.each do |grid_chunk_x, grid_chunk|
-                grid_chunk_render = memoized!(:draw, grid_chunk) { grid_chunk.render }
+      drawn = Worlds::Base.memoized! :draw do
+        # $app.internal.bm.report 'Drawing World...' do
+          Rubuild::Texture.new_from_render(
+            width: $app.window.width,
+            height: $app.window.height
+          ) do
+            @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
+              h.sort_by(&:first).each do |grid_chunk_y, h|
+                h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
+                  grid_chunk_render = memoized!(:draw, grid_chunk) { grid_chunk.render }
 
-                (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
-                  grid_chunk.pixel_x,
-                  grid_chunk.pixel_y,
-                  grid_chunk.pixel_z
-                )
+                  (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
+                    grid_chunk.pixel_x,
+                    grid_chunk.pixel_y,
+                    grid_chunk.pixel_z
+                  )
 
-                grid_chunk_render.draw(
-                  x: x_grid_chunk_2_5d,
-                  y: y_grid_chunk_2_5d
-                )
+                  grid_chunk_render.draw(
+                    x: x_grid_chunk_2_5d,
+                    y: y_grid_chunk_2_5d
+                  )
+                end
               end
             end
           end
+        # end
+      end
+
+      if $app&.temp&.changed_grid_chunks&.any?
+        drawn = Worlds::Base.rememoized! :draw do
+          Rubuild::Texture.new_from_render(
+            width: $app.window.width,
+            height: $app.window.height
+          ) do
+            drawn.draw(x: 0, y: 0)
+
+            $app.temp.changed_grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
+              h.sort_by(&:first).each do |grid_chunk_y, h|
+                h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
+                  # drawn.update_from_render do
+                    grid_chunk_render = memoized!(:draw, grid_chunk) { grid_chunk.render }
+
+                    (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
+                      grid_chunk.pixel_x,
+                      grid_chunk.pixel_y,
+                      grid_chunk.pixel_z
+                    )
+
+                    grid_chunk_render.draw(
+                      x: x_grid_chunk_2_5d,
+                      y: y_grid_chunk_2_5d
+                    )
+                  # end
+                end
+              end
+            end
+          end
+        end
+      end
+
+      drawn.draw(x: 0, y: 0)
+      drawn
+
+      # @grid_chunks[$app.state.dirts[560].grid_chunk_z][$app.state.dirts[560].grid_chunk_y][$app.state.dirts[560].grid_chunk_x].tap do |grid_chunk|
+      #   memoized!(:draw, grid_chunk) do
+      #     rendered = grid_chunk.render
+      #
+      #     (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
+      #       grid_chunk.pixel_x,
+      #       grid_chunk.pixel_y,
+      #       grid_chunk.pixel_z
+      #     )
+      #
+      #     rendered.draw(
+      #       x: x_grid_chunk_2_5d,
+      #       y: y_grid_chunk_2_5d
+      #     )
+      #     rendered
       #   end
-      # end.draw(x: 0, y: 0)
+      # end
 
       # @grid_chunks.reverse_each do |grid_chunk_z, h|
       #   h.each do |grid_chunk_y, h|
@@ -87,7 +142,7 @@ module Worlds
       #   end
       # end
 
-      # @grid_chunks[$app.state.dirt.grid_chunk_z][$app.state.dirt.grid_chunk_y][$app.state.dirt.grid_chunk_x].tap do |grid_chunk|
+      # @grid_chunks[$app.state.dirts[560].grid_chunk_z][$app.state.dirts[560].grid_chunk_y][$app.state.dirts[560].grid_chunk_x].tap do |grid_chunk|
       #   memoized!(:draw, grid_chunk) do
       #     rendered = grid_chunk.render
       #

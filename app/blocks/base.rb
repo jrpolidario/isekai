@@ -22,6 +22,7 @@ module Blocks
       :grid_block_left, :grid_block_right,
       :grid_block_front, :grid_block_behind,
       :grid_blocks_surrounding, :grid_blocks_surrounding_objects,
+      :is_visible?,
       to: :grid_block
     )
 
@@ -30,6 +31,7 @@ module Blocks
         if instance_variable_get(:"@#{m.to_s.chop}") != arg
           grid_blocks_surrounding_objects.each do |uuid, object|
             world.unmemoized!(:draw, object.grid_chunk)
+            $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
           end
 
           grid_block.remove_from_objects(self)
@@ -53,6 +55,7 @@ module Blocks
 
           grid_blocks_surrounding_objects.each do |uuid, object|
             world.unmemoized!(:draw, object.grid_chunk)
+            $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
           end
 
           # re-trace shadows

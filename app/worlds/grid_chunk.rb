@@ -1,6 +1,6 @@
 module Worlds
   class GridChunk
-    SIZE = 4
+    SIZE = 32
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 
@@ -111,6 +111,9 @@ module Worlds
         width: grid_chunk_pixels_size * 1.5,
         height: grid_chunk_pixels_size * 1.5
       ) do
+        # $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
+        # $app.sdl_renderer.fill_rect(SDL2::Rect.new(0, 0, grid_chunk_pixels_size * 1.5, grid_chunk_pixels_size * 1.5))
+
         @grid_blocks.sort_by(&:first).reverse_each do |grid_block_z, h|
           h.sort_by(&:first).each do |grid_block_y, h|
             h.sort_by(&:first).each do |grid_block_x, grid_block|

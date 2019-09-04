@@ -24,7 +24,7 @@ Benchmark.bm do |bm|
     mid_block_x = ($app.window.width / Worlds::GridBlock::SIZE) / 2
     mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
-    (0...1).to_a.each do |z|
+    (0...5).to_a.each do |z|
       # $app.internal.threads << Thread.new do
         (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
         # $app.internal.pool.post do
@@ -318,7 +318,7 @@ $app.tick do
   # puts "#{object.class}-#{object_uid}"
 
   # $app.state.puts.string = $app.state.dirt.grid_block.find_nearest_grid_block_below&.objects.to_s #&.map(&:casted_shadow_by).to_s # $app.state.dirt.grid_block.find_nearest_grid_block_below.to_s
-  $app.state.puts.draw
+  # $app.state.puts.draw
 
   # sleep 0.01
 end

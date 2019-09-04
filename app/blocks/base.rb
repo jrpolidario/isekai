@@ -30,8 +30,8 @@ module Blocks
       before m do |arg|
         if instance_variable_get(:"@#{m.to_s.chop}") != arg
           grid_blocks_surrounding_objects.each do |uuid, object|
-            # world.unmemoized!(:draw, object.grid_chunk)
-            $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+            world.unmemoized!(:draw, object.grid_chunk)
+            # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
           end
 
           grid_block.remove_from_objects(self)
@@ -54,8 +54,8 @@ module Blocks
           # pp [grid_blocks_surrounding_objects.size, grid_blocks_surrounding_objects.to_a.map(&:second).map(&:grid_chunk).map(&:object_id)]
 
           grid_blocks_surrounding_objects.each do |uuid, object|
-            # world.unmemoized!(:draw, object.grid_chunk)
-            $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+            world.unmemoized!(:draw, object.grid_chunk)
+            # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
           end
 
           # re-trace shadows

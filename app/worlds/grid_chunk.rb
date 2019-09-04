@@ -1,6 +1,6 @@
 module Worlds
   class GridChunk
-    SIZE = 32
+    SIZE = 16
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 
@@ -117,7 +117,18 @@ module Worlds
         @grid_blocks.sort_by(&:first).reverse_each do |grid_block_z, h|
           h.sort_by(&:first).each do |grid_block_y, h|
             h.sort_by(&:first).each do |grid_block_x, grid_block|
-              grid_block.render
+              grid_block_rendered = world.memoized!(:draw, grid_block) { grid_block.render }
+
+              (x_grid_block_2_5d, y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
+                grid_block.pixel_x - pixel_x,
+                grid_block.pixel_y - pixel_y,
+                grid_block.pixel_z - pixel_z
+              )
+
+              grid_block_rendered.draw(
+                x: x_grid_block_2_5d,
+                y: y_grid_block_2_5d
+              )
             end
           end
         end

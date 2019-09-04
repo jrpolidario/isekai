@@ -6,6 +6,8 @@ module Worlds
 
     attr_reader :grid_chunk, :grid_block_x, :grid_block_y, :grid_block_z, :objects
 
+    delegate :world, to: :grid_chunk
+
     # remove this from world if no longer has `objects`
     after :remove_from_objects do |object|
       grid_chunk.remove_grid_block(self) if @objects.empty?
@@ -32,12 +34,17 @@ module Worlds
     end
 
     def render
-      @objects.each do |uuid, object|
-        object.draw(
-          x: object.x - grid_chunk.pixel_x,
-          y: object.y - grid_chunk.pixel_y,
-          z: object.z - grid_chunk.pixel_z
-        )
+      Rubuild::Texture.new_from_render(
+        width: SIZE,
+        height: SIZE
+      ) do
+        @objects.each do |uuid, object|
+          object.draw(
+            x: object.x - pixel_x,
+            y: object.y - pixel_y,
+            z: object.z - pixel_z,
+          )
+        end
       end
     end
 
@@ -117,6 +124,18 @@ module Worlds
 
     def grid_blocks_surrounding_objects(step: 1, include_self: true)
       grid_blocks_surrounding(step: step, include_self: include_self)&.map(&:objects)&.inject({}, :merge) || []
+    end
+
+    def pixel_x
+      grid_block_x * SIZE
+    end
+
+    def pixel_y
+      grid_block_y * SIZE
+    end
+
+    def pixel_z
+      grid_block_z * SIZE
     end
 
     # def is_visible?

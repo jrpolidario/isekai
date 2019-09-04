@@ -30,7 +30,7 @@ Benchmark.bm do |bm|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
-            if rand(3) >= 2
+            # if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -58,7 +58,7 @@ Benchmark.bm do |bm|
                 #   z: z * Worlds::GridBlock::SIZE
                 # )
               end
-            end
+            # end
           end
         end
       # end
@@ -271,39 +271,39 @@ $app.tick do
   #   end
   # end
 
-  # $app.state.dirts[1500].tap do |dirt|
-  #   if rand(100) <= 75
-  #     dirt.x += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.x -= 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y -= 1
-  #   end
+  $app.state.dirts[1500].tap do |dirt|
+    if rand(100) <= 75
+      dirt.x += 1
+    end
+
+    if rand(100) <= 75
+      dirt.x -= 1
+    end
+
+    if rand(100) <= 75
+      dirt.y += 1
+    end
+
+    if rand(100) <= 75
+      dirt.y -= 1
+    end
+  end
+
+  # if rand(100) <= 75
+  #   $app.state.dirt.x += 1
   # end
-
-  if rand(100) <= 75
-    $app.state.dirt.x += 1
-  end
-
-  if rand(100) <= 75
-    $app.state.dirt.x -= 1
-  end
-
-  if rand(100) <= 75
-    $app.state.dirt.y += 1
-  end
-
-  if rand(100) <= 75
-    $app.state.dirt.y -= 1
-  end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.x -= 1
+  # end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.y += 1
+  # end
+  #
+  # if rand(100) <= 75
+  #   $app.state.dirt.y -= 1
+  # end
 
   $app.state.camera.x = $app.state.dirt.x
   $app.state.camera.y = $app.state.dirt.y

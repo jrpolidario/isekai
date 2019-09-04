@@ -29,21 +29,25 @@ module Blocks
     %i[x= y= z=].each do |m|
       before m do |arg|
         if instance_variable_get(:"@#{m.to_s.chop}") != arg
-          grid_blocks_surrounding_objects.each do |uuid, object|
-            world.unmemoized!(:draw, object.grid_chunk)
-            # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+          grid_blocks_surrounding.each do |grid_block|
+            world.unmemoized!(:draw, grid_block)
+            world.unmemoized!(:draw, grid_block.grid_chunk)
           end
+          # grid_blocks_surrounding_objects.each do |uuid, object|
+          #   # world.unmemoized!(:draw, object.grid_chunk)
+          #   # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+          # end
 
           grid_block.remove_from_objects(self)
 
           # re-trace shadows
           nearest_grid_block = grid_block.find_nearest_grid_block_above
 
-          if nearest_grid_block
-            nearest_grid_block.objects.each do |uuid, object|
-              object.cast_shadow
-            end
-          end
+          # if nearest_grid_block
+          #   nearest_grid_block.objects.each do |uuid, object|
+          #     object.cast_shadow
+          #   end
+          # end
         end
       end
 
@@ -53,14 +57,19 @@ module Blocks
 
           # pp [grid_blocks_surrounding_objects.size, grid_blocks_surrounding_objects.to_a.map(&:second).map(&:grid_chunk).map(&:object_id)]
 
-          grid_blocks_surrounding_objects.each do |uuid, object|
-            world.unmemoized!(:draw, object.grid_chunk)
-            # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+          grid_blocks_surrounding.each do |grid_block|
+            world.unmemoized!(:draw, grid_block)
+            world.unmemoized!(:draw, grid_block.grid_chunk)
           end
 
-          # re-trace shadows
-          trace_casted_shadow
-          cast_shadow
+          # grid_blocks_surrounding_objects.each do |uuid, object|
+          #   world.unmemoized!(:draw, object.grid_chunk)
+          #   # $app.temp.changed_grid_chunks.dig_set(object.grid_chunk_z, object.grid_chunk_y, object.grid_chunk_x, with: object.grid_chunk)
+          # end
+
+          # # re-trace shadows
+          # trace_casted_shadow
+          # cast_shadow
         end
       end
     end

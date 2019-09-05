@@ -1,9 +1,11 @@
 module Worlds
   class Base < Rubuild::Texture
-    attr_accessor :grid_chunks
+    attr_accessor :grid_chunks, :grid_chunks_yxz, :grid_chunks_xzy
 
     def initialize
       @grid_chunks = {}
+      @grid_chunks_yxz = {}
+      @grid_chunks_xzy = {}
     end
 
     def find_grid_chunk(grid_chunk_z:, grid_chunk_y:, grid_chunk_x:)
@@ -11,14 +13,25 @@ module Worlds
     end
 
     def find_or_initialize_grid_chunk(grid_chunk_z:, grid_chunk_y:, grid_chunk_x:)
-      @grid_chunks.dig_or_set(
-        grid_chunk_z, grid_chunk_y, grid_chunk_x,
-        with: GridChunk.new(
+      @grid_chunks[grid_chunk_z] ||= {}
+      @grid_chunks[grid_chunk_z][grid_chunk_y] ||= {}
+      @grid_chunks[grid_chunk_z][grid_chunk_y][grid_chunk_x] ||= (
+        grid_chunk = GridChunk.new(
           world: self,
           grid_chunk_x: grid_chunk_x,
           grid_chunk_y: grid_chunk_y,
           grid_chunk_z: grid_chunk_z
         )
+
+        @grid_chunks_yxz[grid_chunk_y] ||= {}
+        @grid_chunks_yxz[grid_chunk_y][grid_chunk_x] ||= {}
+        @grid_chunks_yxz[grid_chunk_y][grid_chunk_x][grid_chunk_z] = grid_chunk
+
+        @grid_chunks_xzy[grid_chunk_x] ||= {}
+        @grid_chunks_xzy[grid_chunk_x][grid_chunk_z] ||= {}
+        @grid_chunks_xzy[grid_chunk_x][grid_chunk_z][grid_chunk_y] = grid_chunk
+
+        grid_chunk
       )
     end
 
@@ -45,10 +58,11 @@ module Worlds
       #       width: $app.window.width,
       #       height: $app.window.height
       #     ) do
+      # already_drawn_xy = Set.new
+
             @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
               h.sort_by(&:first).each do |grid_chunk_y, h|
                 h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
-                  grid_chunk_rendered = memoized!(:draw, grid_chunk) { grid_chunk.render }
 
                   (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
                     grid_chunk.pixel_x,
@@ -56,10 +70,16 @@ module Worlds
                     grid_chunk.pixel_z
                   )
 
-                  grid_chunk_rendered.draw(
-                    x: x_grid_chunk_2_5d,
-                    y: y_grid_chunk_2_5d
-                  )
+                  # unless already_drawn_xy.include? [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+                    # already_drawn_xy << [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+
+                    grid_chunk_rendered = grid_chunk.render
+
+                    grid_chunk_rendered.draw(
+                      x: x_grid_chunk_2_5d,
+                      y: y_grid_chunk_2_5d
+                    )
+                  # end
                 end
               end
             end

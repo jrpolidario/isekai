@@ -1,6 +1,6 @@
 module Worlds
   class GridChunk
-    SIZE = 16
+    SIZE = 8
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 
@@ -107,28 +107,40 @@ module Worlds
       #   pixel_z
       # )
 
-      Rubuild::Texture.new_from_render(
-        width: grid_chunk_pixels_size * 1.5,
-        height: grid_chunk_pixels_size * 1.5
-      ) do
-        # $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
-        # $app.sdl_renderer.fill_rect(SDL2::Rect.new(0, 0, grid_chunk_pixels_size * 1.5, grid_chunk_pixels_size * 1.5))
+      world.memoized!(:render, self) do
+        Rubuild::Texture.new_from_render(
+          width: grid_chunk_pixels_size, # * 1.5,
+          height: grid_chunk_pixels_size # * 1.5
+        ) do
+          # $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
+          # $app.sdl_renderer.fill_rect(SDL2::Rect.new(0, 0, grid_chunk_pixels_size * 1.5, grid_chunk_pixels_size * 1.5))
 
-        @grid_blocks.sort_by(&:first).reverse_each do |grid_block_z, h|
-          h.sort_by(&:first).each do |grid_block_y, h|
-            h.sort_by(&:first).each do |grid_block_x, grid_block|
-              grid_block_rendered = world.memoized!(:draw, grid_block) { grid_block.render }
+          @grid_blocks.sort_by(&:first).reverse_each do |grid_block_z, h|
+            h.sort_by(&:first).each do |grid_block_y, h|
+              h.sort_by(&:first).each do |grid_block_x, grid_block|
+                (x_grid_block_2_5d, y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
+                  grid_block.pixel_x - pixel_x,
+                  grid_block.pixel_y - pixel_y,
+                  grid_block.pixel_z - pixel_z
+                )
 
-              (x_grid_block_2_5d, y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
-                grid_block.pixel_x - pixel_x,
-                grid_block.pixel_y - pixel_y,
-                grid_block.pixel_z - pixel_z
-              )
+                # (pixel_x_grid_block_2_5d, pixel_y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
+                #   grid_block.pixel_x,
+                #   grid_block.pixel_y,
+                #   grid_block.pixel_z
+                # )
+                #
+                # unless $app.temp.already_rendered_xy.has_key? [pixel_x_grid_block_2_5d.to_i, pixel_y_grid_block_2_5d.to_i]
+                #   $app.temp.already_rendered_xy[[pixel_x_grid_block_2_5d.to_i, pixel_y_grid_block_2_5d.to_i]] = true
 
-              grid_block_rendered.draw(
-                x: x_grid_block_2_5d,
-                y: y_grid_block_2_5d
-              )
+                  grid_block_rendered = grid_block.render
+
+                  grid_block_rendered.draw(
+                    x: x_grid_block_2_5d,
+                    y: y_grid_block_2_5d
+                  )
+                # end
+              end
             end
           end
         end

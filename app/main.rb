@@ -204,13 +204,17 @@ Benchmark.bm do |bm|
   #   $app.state.world.draw
   # end
 
-  # bm.report 'Drawing World...' do
-  #   $app.state.world.draw
-  # end
+  $app.temp.already_rendered_xy = {}
+
+  bm.report 'Drawing World...' do
+    $app.state.world.draw
+  end
 end
 
 $app.tick do
   $app.temp.changed_grid_chunks = {}
+  # $app.temp.already_rendered_xy = Set.new
+  $app.temp.already_rendered_xy = {}
 
   $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
 

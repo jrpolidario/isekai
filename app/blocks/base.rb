@@ -30,8 +30,8 @@ module Blocks
       before m do |arg|
         if instance_variable_get(:"@#{m.to_s.chop}") != arg
           grid_blocks_surrounding.each do |grid_block|
-            world.unmemoized!(:draw, grid_block)
-            world.unmemoized!(:draw, grid_block.grid_chunk)
+            world.unmemoized!(:render, grid_block)
+            world.unmemoized!(:render, grid_block.grid_chunk)
           end
           # grid_blocks_surrounding_objects.each do |uuid, object|
           #   # world.unmemoized!(:draw, object.grid_chunk)
@@ -58,8 +58,8 @@ module Blocks
           # pp [grid_blocks_surrounding_objects.size, grid_blocks_surrounding_objects.to_a.map(&:second).map(&:grid_chunk).map(&:object_id)]
 
           grid_blocks_surrounding.each do |grid_block|
-            world.unmemoized!(:draw, grid_block)
-            world.unmemoized!(:draw, grid_block.grid_chunk)
+            world.unmemoized!(:render, grid_block)
+            world.unmemoized!(:render, grid_block.grid_chunk)
           end
 
           # grid_blocks_surrounding_objects.each do |uuid, object|

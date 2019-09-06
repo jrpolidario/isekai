@@ -22,3 +22,5 @@ group :development do
   gem 'pry-nav'
   gem 'listen', '~> 3.0'
 end
+
+gem "parallel", "~> 1.17"

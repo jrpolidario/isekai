@@ -24,7 +24,8 @@ Benchmark.bm do |bm|
     mid_block_x = ($app.window.width / Worlds::GridBlock::SIZE) / 2
     mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
-    (0...5).to_a.each do |z|
+    # (0...5).to_a.each do |z|
+    Parallel.each((0...5).to_a, in_threads: 8) do |z|
       # $app.internal.threads << Thread.new do
         (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
         # $app.internal.pool.post do

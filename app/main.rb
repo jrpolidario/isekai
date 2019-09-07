@@ -24,7 +24,7 @@ Benchmark.bm do |bm|
     mid_block_x = ($app.window.width / Worlds::GridBlock::SIZE) / 2
     mid_block_y = ($app.window.height * 2 / Worlds::GridBlock::SIZE) / 2
 
-    (0...5).to_a.each do |z|
+    (0...4).to_a.each do |z|
     # Parallel.each((0...5).to_a, in_threads: 8) do |z|
       # $app.internal.threads << Thread.new do
         (0...($app.window.height * 2 / Worlds::GridBlock::SIZE)).to_a.each do |y|
@@ -216,6 +216,7 @@ $app.tick do
   $app.temp.changed_grid_chunks = {}
   # $app.temp.already_rendered_xy = Set.new
   $app.temp.already_rendered_xy = {}
+  $app.temp.rendered_count = 0
 
   $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
 
@@ -293,6 +294,60 @@ $app.tick do
       dirt.y -= 1
     end
   end
+  #
+  # $app.state.dirts[1501].tap do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
+  #
+  # $app.state.dirts[1502].tap do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
+  #
+  # $app.state.dirts[1503].tap do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
 
   # if rand(100) <= 75
   #   $app.state.dirt.x += 1
@@ -324,6 +379,9 @@ $app.tick do
 
   # $app.state.puts.string = $app.state.dirt.grid_block.find_nearest_grid_block_below&.objects.to_s #&.map(&:casted_shadow_by).to_s # $app.state.dirt.grid_block.find_nearest_grid_block_below.to_s
   # $app.state.puts.draw
+
+  $app.state.puts.string = $app.temp.rendered_count
+  $app.state.puts.draw
 
   # sleep 0.01
 end

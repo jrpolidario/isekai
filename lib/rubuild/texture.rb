@@ -40,7 +40,7 @@ module Rubuild
       $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0, 1]
       $app.sdl_renderer.clear
 
-    	yield
+    	yield(current_render_target)
 
       Thread.current[:rubuild_render_targets].pop
 
@@ -65,7 +65,7 @@ module Rubuild
       $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0, 1]
       $app.sdl_renderer.clear
 
-    	yield
+    	yield(sdl_texture)
 
       Thread.current[:rubuild_render_targets].pop
 

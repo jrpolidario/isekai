@@ -1,6 +1,6 @@
 module Worlds
   class GridChunk
-    SIZE = 8
+    SIZE = 6 # 7
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 
@@ -109,8 +109,8 @@ module Worlds
 
       world.memoized!(:render, self) do
         Rubuild::Texture.new_from_render(
-          width: grid_chunk_pixels_size, # * 1.5,
-          height: grid_chunk_pixels_size # * 1.5
+          width: grid_chunk_pixels_size * 1.5,
+          height: grid_chunk_pixels_size * 1.5
         ) do
           # $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
           # $app.sdl_renderer.fill_rect(SDL2::Rect.new(0, 0, grid_chunk_pixels_size * 1.5, grid_chunk_pixels_size * 1.5))
@@ -147,11 +147,7 @@ module Worlds
                 #   grid_block.pixel_z - pixel_z
                 # )
 
-                grid_block.draw(
-                  x: pixel_x,
-                  y: pixel_y,
-                  z: pixel_z,
-                )
+                grid_block.draw
               end
             end
           end

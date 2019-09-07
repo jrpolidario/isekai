@@ -23,7 +23,8 @@ module Rubuild
     attr_accessor :string, :x, :y, :width, :height, :font
 
     after :string= do |arg|
-      @string = ' ' if @string.to_s == '' # prevent width size error
+      @string = @string.to_s
+      @string = ' ' if @string == '' # prevent width size error
       self.width, self.height = font.size_text(@string)
     end
 
@@ -51,7 +52,7 @@ module Rubuild
     def draw
       $app.sdl_renderer.copy(
         $app.sdl_renderer.create_texture_from(
-          @font.render_solid(@string, @color)
+          @font.render_solid(@string.to_s, @color)
         ),
         nil,
         SDL2::Rect.new(@x, @y, @width, @height)

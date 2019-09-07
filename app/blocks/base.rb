@@ -34,9 +34,10 @@ module Blocks
           #   world.unmemoized!(:render, grid_block.grid_chunk)
           # end
           world.unmemoized!(:render, grid_block.grid_chunk)
+          world.unmemoized!(:render, grid_block.grid_chunk.grid_blob)
           # world.unmemoized!(:render, grid_chunk_z)
-          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
-          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
+          # world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
+          # world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
 
           # grid_blocks_surrounding_objects.each do |uuid, object|
           #   # world.unmemoized!(:draw, object.grid_chunk)
@@ -68,9 +69,10 @@ module Blocks
           # end
 
           world.unmemoized!(:render, grid_block.grid_chunk)
+          world.unmemoized!(:render, grid_block.grid_chunk.grid_blob)
           # world.unmemoized!(:render, grid_chunk_z)
-          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
-          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
+          # world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
+          # world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
 
           # grid_blocks_surrounding_objects.each do |uuid, object|
           #   world.unmemoized!(:draw, object.grid_chunk)
@@ -194,6 +196,9 @@ module Blocks
     end
 
     def draw(x: self.x, y: self.y, z: self.z)
+      $app.temp.rendered_blocks_count ||= 0
+      $app.temp.rendered_blocks_count += 1
+
       (x_2_5d, y_2_5d) = ::Helpers::Maths.to_2_5d(x, y, z)
       render.draw(x: x_2_5d, y: y_2_5d)
     end

@@ -9,7 +9,7 @@ module Texts
       # )
       super(
         font_file_path: 'Montserrat/Montserrat-Bold.ttf',
-        outline: { size: 1, r: 0, g: 0, b: 0, a: 128 },
+        # outline: { size: 1, r: 0, g: 0, b: 0, a: 128 }, # THIS IS SO SLOW!!!
         **args
       )
     end

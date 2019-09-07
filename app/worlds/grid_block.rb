@@ -2,7 +2,7 @@ module Worlds
   class GridBlock
     include SuperCallbacks
 
-    SIZE = 8
+    SIZE = 16
 
     attr_reader :grid_chunk, :grid_block_x, :grid_block_y, :grid_block_z, :objects
 
@@ -39,7 +39,7 @@ module Worlds
           width: SIZE,
           height: SIZE
         ) do
-          @objects.each do |uuid, object|
+          @objects.sort_by { |object| [-object.z, object.y]}.each do |uuid, object|
             object.draw(
               x: object.x - pixel_x,
               y: object.y - pixel_y,

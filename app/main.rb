@@ -11,7 +11,8 @@ $app.state.world = Worlds::Default.new
 $app.state.camera = Worlds::Camera.new
 
 $app.state.fps = Texts::Default.new(x: 0, y: 0, color: :green)
-$app.state.puts = Texts::Default.new(x: 50, y: $app.window.height - 114)
+$app.state.puts1 = Texts::Default.new(x: 50, y: $app.window.height - 128)
+$app.state.puts2 = Texts::Default.new(x: 400, y: $app.window.height - 128)
 
 $app.state.dirts = []
 
@@ -31,7 +32,7 @@ Benchmark.bm do |bm|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
-            if rand(3) >= 2
+            # if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -59,7 +60,7 @@ Benchmark.bm do |bm|
                 #   z: z * Worlds::GridBlock::SIZE
                 # )
               end
-            end
+            # end
           end
         end
       # end
@@ -259,6 +260,24 @@ $app.tick do
   #   end
   # end
 
+  # 20.times.map { $app.state.dirts.sample }.each do |dirt|
+  #   if rand(100) <= 75
+  #     dirt.x += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.x -= 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y += 1
+  #   end
+  #
+  #   if rand(100) <= 75
+  #     dirt.y -= 1
+  #   end
+  # end
+
   $app.state.dirts[1500].tap do |dirt|
     if rand(100) <= 75
       dirt.x += 1
@@ -329,6 +348,14 @@ $app.tick do
     if rand(100) <= 75
       dirt.y -= 1
     end
+
+    if rand(100) <= 75
+      dirt.z += 1
+    end
+
+    if rand(100) <= 75
+      dirt.z -= 1
+    end
   end
 
   # if rand(100) <= 75
@@ -362,10 +389,16 @@ $app.tick do
   # $app.state.puts.string = $app.state.dirt.grid_block.find_nearest_grid_block_below&.objects.to_s #&.map(&:casted_shadow_by).to_s # $app.state.dirt.grid_block.find_nearest_grid_block_below.to_s
   # $app.state.puts.draw
 
-  $app.state.puts.string = $app.temp.rendered_count
-  $app.state.puts.string += "\n#{$app.state.world.grid_chunks.deep_map_values.size}"
-  $app.state.puts.string += "\n#{$app.temp.counter}"
-  $app.state.puts.draw
+  $app.state.puts1.string = "Rendered Count:\n"
+  $app.state.puts1.string += "GridBlob: #{$app.temp.rendered_grid_blobs_count}\n"
+  $app.state.puts1.string += "GridChunk: #{$app.temp.rendered_grid_chunks_count}\n"
+  $app.state.puts1.string += "Block: #{$app.temp.rendered_blocks_count}\n"
+  $app.state.puts1.draw
+
+  $app.state.puts2.string = "Rerendered Count:\n"
+  $app.state.puts2.string += "GridBlob: #{$app.temp.rerendered_grid_blobs_count}\n"
+  $app.state.puts2.string += "GridChunk: #{$app.temp.rerendered_grid_chunks_count}\n"
+  $app.state.puts2.draw
 
   # sleep 0.01
 end

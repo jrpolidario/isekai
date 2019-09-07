@@ -1,11 +1,12 @@
 module Worlds
   class GridChunk
-    SIZE = 4 # 7
+    SIZE = 2 # 7
 
-    attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
+    attr_reader :grid_blob, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
+    delegate :world, to: :grid_blob
 
-    def initialize(world:, grid_chunk_x:, grid_chunk_y:, grid_chunk_z:)
-      @world = world
+    def initialize(grid_blob:, grid_chunk_x:, grid_chunk_y:, grid_chunk_z:)
+      @grid_blob = grid_blob
       @grid_chunk_x = grid_chunk_x
       @grid_chunk_y = grid_chunk_y
       @grid_chunk_z = grid_chunk_z
@@ -77,12 +78,6 @@ module Worlds
       world.find_or_initialize_grid_chunk(grid_chunk_z: grid_chunk_z, grid_chunk_y: grid_chunk_y + step, grid_chunk_x: grid_chunk_x)
     end
 
-    # # callback!
-    # def move_to_block(grid_block_z:, grid_block_y:, grid_block_x:, object:)
-    #   block = find_or_initialize_grid_block(grid_block_z: grid_block_z, grid_block_y: grid_block_y, grid_block_x: grid_block_x)
-    #   block[object.uuid] = object
-    # end
-
     def pixel_x
       grid_chunk_x * SIZE * Worlds::GridBlock::SIZE
     end
@@ -101,52 +96,20 @@ module Worlds
     end
 
     def render
-      # (chunk_2_5d_x, chunk_2_5d_y) = Helpers::Maths.to_2_5d(
-      #   pixel_x,
-      #   pixel_y,
-      #   pixel_z
-      # )
+      $app.temp.rendered_grid_chunks_count ||= 0
+      $app.temp.rendered_grid_chunks_count += 1
 
       world.memoized!(:render, self) do
         Rubuild::Texture.new_from_render(
           width: grid_chunk_pixels_size * 1.5,
           height: grid_chunk_pixels_size * 1.5
         ) do
-          # $app.sdl_renderer.draw_color = [0xA0, 0xA0, 0xA0]
-          # $app.sdl_renderer.fill_rect(SDL2::Rect.new(0, 0, grid_chunk_pixels_size * 1.5, grid_chunk_pixels_size * 1.5))
+          $app.temp.rerendered_grid_chunks_count ||= 0
+          $app.temp.rerendered_grid_chunks_count += 1
 
           @grid_blocks.sort_by(&:first).reverse_each do |grid_block_z, h|
             h.sort_by(&:first).each do |grid_block_y, h|
               h.sort_by(&:first).each do |grid_block_x, grid_block|
-                # (x_grid_block_2_5d, y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
-                #   grid_block.pixel_x - pixel_x,
-                #   grid_block.pixel_y - pixel_y,
-                #   grid_block.pixel_z - pixel_z
-                # )
-                #
-                # # (pixel_x_grid_block_2_5d, pixel_y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
-                # #   grid_block.pixel_x,
-                # #   grid_block.pixel_y,
-                # #   grid_block.pixel_z
-                # # )
-                # #
-                # # unless $app.temp.already_rendered_xy.has_key? [pixel_x_grid_block_2_5d.to_i, pixel_y_grid_block_2_5d.to_i]
-                # #   $app.temp.already_rendered_xy[[pixel_x_grid_block_2_5d.to_i, pixel_y_grid_block_2_5d.to_i]] = true
-                #
-                #   grid_block_rendered = grid_block.render
-                #
-                #   grid_block_rendered.draw(
-                #     x: x_grid_block_2_5d,
-                #     y: y_grid_block_2_5d
-                #   )
-                # # end
-
-                # (x_grid_block_2_5d, y_grid_block_2_5d) = Helpers::Maths.to_2_5d(
-                #   grid_block.pixel_x - pixel_x,
-                #   grid_block.pixel_y - pixel_y,
-                #   grid_block.pixel_z - pixel_z
-                # )
-
                 grid_block.draw
               end
             end

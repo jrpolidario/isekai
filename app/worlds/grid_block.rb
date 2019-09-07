@@ -2,7 +2,7 @@ module Worlds
   class GridBlock
     include SuperCallbacks
 
-    SIZE = 16
+    SIZE = 8
 
     attr_reader :grid_chunk, :grid_block_x, :grid_block_y, :grid_block_z, :objects
 

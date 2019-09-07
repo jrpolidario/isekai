@@ -259,24 +259,6 @@ $app.tick do
   #   end
   # end
 
-  # $app.state.dirts[rand(1000)].tap do |dirt|
-  #   if rand(100) <= 75
-  #     dirt.x += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.x -= 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y -= 1
-  #   end
-  # end
-
   $app.state.dirts[1500].tap do |dirt|
     if rand(100) <= 75
       dirt.x += 1
@@ -381,7 +363,9 @@ $app.tick do
   # $app.state.puts.draw
 
   $app.state.puts.string = $app.temp.rendered_count
+  $app.state.puts.string += "\n#{$app.state.world.grid_chunks.deep_map_values.size}"
+  $app.state.puts.string += "\n#{$app.temp.counter}"
   $app.state.puts.draw
-  
+
   # sleep 0.01
 end

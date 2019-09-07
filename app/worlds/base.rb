@@ -60,33 +60,94 @@ module Worlds
       #     ) do
       # already_drawn_xy = Set.new
 
-            @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
-            # Parallel.each(@grid_chunks.sort_by(&:first).reverse, in_threads: 8) do |grid_chunk_z, h|
-              h.sort_by(&:first).each do |grid_chunk_y, h|
-                h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
+      sorted_grid_chunks_z = @grid_chunks.sort_by(&:first).reverse.map(&:first)
+      first_grid_chunk_z = sorted_grid_chunks_z.first
+      first_grid_chunk_z = sorted_grid_chunks_z.last
 
-                  (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
-                    grid_chunk.pixel_x,
-                    grid_chunk.pixel_y,
-                    grid_chunk.pixel_z
-                  )
+      sorted_grid_chunks_z.group_by { |grid_chunk_z| grid_chunk_z / 8 }.each do |index_z, grid_chunks_z|
+        grid_chunks_z.each do |grid_chunk_z|
+          sorted_grid_chunks_y = @grid_chunks[grid_chunk_z].sort_by(&:first).map(&:first)
+          first_grid_chunk_y = sorted_grid_chunks_y.first
+          first_grid_chunk_y = sorted_grid_chunks_y.last
 
-                  # unless already_drawn_xy.include? [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
-                    # already_drawn_xy << [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+          sorted_grid_chunks_y.group_by { |grid_chunk_y| grid_chunk_y / 8 }.each do |index_y, grid_chunks_y|
+            grid_chunks_y.each do |grid_chunk_y|
+              sorted_grid_chunks_x = @grid_chunks[grid_chunk_z][grid_chunk_y].sort_by(&:first).map(&:first)
+              first_grid_chunk_x = sorted_grid_chunks_x.first
+              first_grid_chunk_x = sorted_grid_chunks_x.last
 
-                    grid_chunk_rendered = grid_chunk.render
+              sorted_grid_chunks_x.group_by { |grid_chunk_x| grid_chunk_x / 8 }.each do |index_x, grid_chunks_x|
+                # memoized!(:render, :grouped_grid_chunk_indexes, [index_z, index_y, index_x]) do
+                #   Rubuild::Texture.new_from_render(
+                #     width: $app.window.width,
+                #     height: $app.window.height
+                #   ) do
+                    $app.temp.counter ||= 0
+                    $app.temp.counter += 1
 
-                    grid_chunk_rendered.draw(
-                      x: x_grid_chunk_2_5d,
-                      y: y_grid_chunk_2_5d
-                    )
-                  # end
-                end
+                    grid_chunks_x.each do |grid_chunk_x|
+                      grid_chunk = @grid_chunks[grid_chunk_z][grid_chunk_y][grid_chunk_x]
+
+                      (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
+                        grid_chunk.pixel_x,
+                        grid_chunk.pixel_y,
+                        grid_chunk.pixel_z
+                      )
+
+                      # unless already_drawn_xy.include? [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+                        # already_drawn_xy << [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+
+                        grid_chunk_rendered = grid_chunk.render
+
+                        grid_chunk_rendered.draw(
+                          x: x_grid_chunk_2_5d,
+                          y: y_grid_chunk_2_5d
+                        )
+                    end
+                #   end
+                # end.draw(x: 0, y: 0)
               end
             end
-      #     end
-      #   # end
-      # end
+          end
+        end
+      end
+
+
+      # memoized!(:render, @grid_chunks) do
+      #   Rubuild::Texture.new_from_render(
+      #     width: $app.window.width,
+      #     height: $app.window.height
+      #   ) do
+      #     $app.temp.counter ||= 0
+      #     $app.temp.counter += 1
+      #
+      #       @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
+      #       # Parallel.each(@grid_chunks.sort_by(&:first).reverse, in_threads: 8) do |grid_chunk_z, h|
+      #         h.sort_by(&:first).each do |grid_chunk_y, h|
+      #           h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
+      #
+      #             (x_grid_chunk_2_5d, y_grid_chunk_2_5d) = Helpers::Maths.to_2_5d(
+      #               grid_chunk.pixel_x,
+      #               grid_chunk.pixel_y,
+      #               grid_chunk.pixel_z
+      #             )
+      #
+      #             # unless already_drawn_xy.include? [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+      #               # already_drawn_xy << [x_grid_chunk_2_5d, y_grid_chunk_2_5d]
+      #
+      #               grid_chunk_rendered = grid_chunk.render
+      #
+      #               grid_chunk_rendered.draw(
+      #                 x: x_grid_chunk_2_5d,
+      #                 y: y_grid_chunk_2_5d
+      #               )
+      #             # end
+      #           end
+      #         end
+      #       end
+      # #     end
+      # #   # end
+      # # end
 
       # chunks_to_be_reblitted = {}
       #

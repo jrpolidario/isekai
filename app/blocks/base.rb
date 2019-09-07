@@ -34,6 +34,9 @@ module Blocks
           #   world.unmemoized!(:render, grid_block.grid_chunk)
           # end
           world.unmemoized!(:render, grid_block.grid_chunk)
+          # world.unmemoized!(:render, grid_chunk_z)
+          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
+          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
 
           # grid_blocks_surrounding_objects.each do |uuid, object|
           #   # world.unmemoized!(:draw, object.grid_chunk)
@@ -64,7 +67,10 @@ module Blocks
           #   world.unmemoized!(:render, grid_block.grid_chunk)
           # end
 
-          # world.unmemoized!(:render, grid_block.grid_chunk)
+          world.unmemoized!(:render, grid_block.grid_chunk)
+          # world.unmemoized!(:render, grid_chunk_z)
+          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z)
+          world.unmemoized!(:render, grid_chunk_z: grid_block.grid_chunk.grid_chunk_z, grid_chunk_y: grid_block.grid_chunk.grid_chunk_y)
 
           # grid_blocks_surrounding_objects.each do |uuid, object|
           #   world.unmemoized!(:draw, object.grid_chunk)

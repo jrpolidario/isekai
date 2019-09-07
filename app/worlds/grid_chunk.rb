@@ -1,6 +1,6 @@
 module Worlds
   class GridChunk
-    SIZE = 6 # 7
+    SIZE = 4 # 7
 
     attr_reader :world, :grid_chunk_x, :grid_chunk_y, :grid_chunk_z, :grid_blocks, :grid_blocks_yxz, :grid_blocks_xzy
 

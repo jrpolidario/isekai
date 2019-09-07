@@ -20,43 +20,72 @@ module Rubuild
       blue: [0, 0, 255]
     }
 
-    attr_accessor :string, :x, :y, :width, :height, :font
+    attr_accessor :string, :x, :y, :color, :size
+    attr_reader :font, :line_broken_strings_and_sizes
 
     after :string= do |arg|
       @string = @string.to_s
-      @string = ' ' if @string == '' # prevent width size error
-      self.width, self.height = font.size_text(@string)
+
+      @line_broken_strings_and_sizes = []
+      @line_broken_strings_and_sizes = []
+
+      @string.split("\n").map do |line_broken_string|
+        line_broken_string = ' ' if line_broken_string == '' # prevent width size error
+        line_broken_string_size = font.size_text(line_broken_string)
+
+        @line_broken_strings_and_sizes << { string: line_broken_string, size: line_broken_string_size }
+      end
     end
 
     def initialize(
       string: '',
       x:,
       y:,
-      color: [255, 255, 255],
       size: 16,
+      color: [255, 255, 255],
+      outline: nil, # i.e. { size: 2, r: 255, g: 255, b: 255, a: 255 },
       font_file_path:
     )
+      self.string = string
       @x = x
       @y = y
-      @color = color
       @size = size
       @color = evaluate_color(color)
+      @outline = outline
       @font = Font.open(
         resolved_font_full_file_path(font_file_path), @size
       )
-
-      self.string = string
-      @width, @height = @font.size_text(@string)
     end
 
     def draw
-      $app.sdl_renderer.copy(
-        $app.sdl_renderer.create_texture_from(
-          @font.render_solid(@string.to_s, @color)
-        ),
-        nil,
-        SDL2::Rect.new(@x, @y, @width, @height)
-      )
+      @line_broken_strings_and_sizes.each.with_index do |line_broken_string_and_size, index|
+        width = line_broken_string_and_size[:size][0]
+        height = line_broken_string_and_size[:size][1]
+
+        if @outline
+          original_outline_size = @font.outline
+
+          @font.outline = @outline[:size] || 0
+
+          $app.sdl_renderer.copy(
+            $app.sdl_renderer.create_texture_from(
+              @font.render_blended(line_broken_string_and_size[:string], @outline.slice(:r, :g, :b, :a).values)
+            ),
+            nil,
+            SDL2::Rect.new(@x, @y + (height * index), width, height)
+          )
+
+          @font.outline = original_outline_size
+        end
+
+        $app.sdl_renderer.copy(
+          $app.sdl_renderer.create_texture_from(
+            @font.render_blended(line_broken_string_and_size[:string], @color)
+          ),
+          nil,
+          SDL2::Rect.new(@x, @y + (height * index), width, height)
+        )
+      end
     end
 
     private

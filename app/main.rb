@@ -31,7 +31,7 @@ Benchmark.bm do |bm|
         # $app.internal.pool.post do
         # $app.internal.threads << Thread.new do
           (0...($app.window.width / Worlds::GridBlock::SIZE)).to_a.each do |x|
-            # if rand(3) >= 2
+            if rand(3) >= 2
               if (
                 !x.between?((mid_block_x - 2), (mid_block_x + 2)) &&
                 !y.between?((mid_block_y - 2), (mid_block_y + 2))
@@ -59,7 +59,7 @@ Benchmark.bm do |bm|
                 #   z: z * Worlds::GridBlock::SIZE
                 # )
               end
-            # end
+            end
           end
         end
       # end
@@ -294,60 +294,60 @@ $app.tick do
       dirt.y -= 1
     end
   end
-  #
-  # $app.state.dirts[1501].tap do |dirt|
-  #   if rand(100) <= 75
-  #     dirt.x += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.x -= 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y -= 1
-  #   end
-  # end
-  #
-  # $app.state.dirts[1502].tap do |dirt|
-  #   if rand(100) <= 75
-  #     dirt.x += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.x -= 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y -= 1
-  #   end
-  # end
-  #
-  # $app.state.dirts[1503].tap do |dirt|
-  #   if rand(100) <= 75
-  #     dirt.x += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.x -= 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y += 1
-  #   end
-  #
-  #   if rand(100) <= 75
-  #     dirt.y -= 1
-  #   end
-  # end
+
+  $app.state.dirts[1501].tap do |dirt|
+    if rand(100) <= 75
+      dirt.x += 1
+    end
+
+    if rand(100) <= 75
+      dirt.x -= 1
+    end
+
+    if rand(100) <= 75
+      dirt.y += 1
+    end
+
+    if rand(100) <= 75
+      dirt.y -= 1
+    end
+  end
+
+  $app.state.dirts[1502].tap do |dirt|
+    if rand(100) <= 75
+      dirt.x += 1
+    end
+
+    if rand(100) <= 75
+      dirt.x -= 1
+    end
+
+    if rand(100) <= 75
+      dirt.y += 1
+    end
+
+    if rand(100) <= 75
+      dirt.y -= 1
+    end
+  end
+
+  $app.state.dirts[1503].tap do |dirt|
+    if rand(100) <= 75
+      dirt.x += 1
+    end
+
+    if rand(100) <= 75
+      dirt.x -= 1
+    end
+
+    if rand(100) <= 75
+      dirt.y += 1
+    end
+
+    if rand(100) <= 75
+      dirt.y -= 1
+    end
+  end
 
   # if rand(100) <= 75
   #   $app.state.dirt.x += 1
@@ -382,6 +382,6 @@ $app.tick do
 
   $app.state.puts.string = $app.temp.rendered_count
   $app.state.puts.draw
-
+  
   # sleep 0.01
 end

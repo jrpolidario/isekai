@@ -50,6 +50,25 @@ module Worlds
       end
     end
 
+    def draw(x: pixel_x, y: pixel_y, z: pixel_z)
+      # (x_2_5d, y_2_5d) = ::Helpers::Maths.to_2_5d(x, y, z)
+      # render.draw(x: x_2_5d, y: y_2_5d)
+
+      @objects.each do |uuid, object|
+        # (x_2_5d, y_2_5d) = ::Helpers::Maths.to_2_5d(
+        #   object.x - grid_block.pixel_x,
+        #   object.y - grid_block.pixel_y,
+        #   object.y - grid_block.pixel_y
+        # )
+
+        object.draw(
+          x: object.x - grid_chunk.pixel_x,
+          y: object.y - grid_chunk.pixel_y,
+          z: object.z - grid_chunk.pixel_z,
+        )
+      end
+    end
+
     def add_to_objects(object)
       if @objects[object.uuid].nil?
         @objects[object.uuid] = object

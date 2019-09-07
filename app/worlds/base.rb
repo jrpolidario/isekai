@@ -60,8 +60,8 @@ module Worlds
       #     ) do
       # already_drawn_xy = Set.new
 
-            # @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
-            Parallel.each(@grid_chunks.sort_by(&:first).reverse, in_threads: 8) do |grid_chunk_z, h|
+            @grid_chunks.sort_by(&:first).reverse_each do |grid_chunk_z, h|
+            # Parallel.each(@grid_chunks.sort_by(&:first).reverse, in_threads: 8) do |grid_chunk_z, h|
               h.sort_by(&:first).each do |grid_chunk_y, h|
                 h.sort_by(&:first).each do |grid_chunk_x, grid_chunk|
 

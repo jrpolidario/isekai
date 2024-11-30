@@ -10,3 +10,25 @@
 * SDL
 * rubuild (my own game engine)
 * [super_callbacks gem (also my own gem built mainly for this)](https://github.com/jrpolidario/super_callbacks)
+
+## Development
+* Depending on your environment, but on mac you'll simply just need to install:
+
+```bash
+brew install SDL2                   
+brew install SDL2_image
+brew install SDL2_ttf
+```
+
+* And then run:
+
+```bash
+cd some/path-to/isekai
+bundle
+```
+
+* And to run the game:
+
+```bash
+./bin/rubuild
+```

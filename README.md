@@ -4,6 +4,8 @@
 * There was something that I got stuck and could not readily fix, and I lost motivation unfortunately.
 * I got the "positioning" and "rendering" part of the game engine ready already, though as you could see below:
 
+<img width="1792" alt="Screenshot 2024-11-30 at 03 40 03" src="https://github.com/user-attachments/assets/1035f49f-98bd-4dbd-a2af-712c512699b1">
+
 ## Technologies
 * SDL
 * rubuild (my own game engine)
